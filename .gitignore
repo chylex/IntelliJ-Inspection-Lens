@@ -1,2 +1,13 @@
+/.idea/dictionaries
+/.idea/inspectionProfiles
+/.idea/libraries
+/.idea/modules
+
+/.idea/*.iml
+/.idea/.name
+/.idea/jarRepositories.xml
+/.idea/misc.xml
+/.idea/modules.xml
+
 /.gradle/
 /build/
