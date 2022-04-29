@@ -1,0 +1,13 @@
+<idea-plugin>
+  <id>com.chylex.intellij.inspectionlens</id>
+  <name>Inspection Lens</name>
+  <vendor url="https://chylex.com">chylex</vendor>
+  
+  <description><![CDATA[
+    Shows errors, warnings, and other inspection highlights inline.
+    <br><br>
+    Inspired by <a href="https://marketplace.visualstudio.com/items?itemName=usernamehw.errorlens">Error Lens</a> for VS Code, and <a href="https://github.com/despinoza1/InlineError">Inline Error</a> for IntelliJ Platform.
+  ]]></description>
+  
+  <depends>com.intellij.modules.platform</depends>
+</idea-plugin>
