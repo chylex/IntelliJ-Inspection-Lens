@@ -10,4 +10,8 @@
   ]]></description>
   
   <depends>com.intellij.modules.platform</depends>
+  
+  <projectListeners>
+    <listener class="com.chylex.intellij.inspectionlens.LensFileEditorListener" topic="com.intellij.openapi.fileEditor.FileEditorManagerListener" />
+  </projectListeners>
 </idea-plugin>
