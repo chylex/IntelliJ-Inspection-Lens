@@ -1,5 +1,6 @@
 package com.chylex.intellij.inspectionlens
 
+import com.intellij.codeInsight.daemon.impl.HighlightInfo
 import com.intellij.codeInsight.daemon.impl.HintRenderer
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.editor.Inlay
@@ -11,23 +12,44 @@ import java.awt.Rectangle
 /**
  * Renders the text of an inspection lens.
  */
-class LensRenderer : HintRenderer(null) {
-	private companion object {
-		private val ATTRIBUTES = TextAttributes(null, null, null, null, Font.ITALIC)
+class LensRenderer(info: HighlightInfo) : HintRenderer(null) {
+	private lateinit var severity: LensSeverity
+	
+	init {
+		setPropertiesFrom(info)
 	}
 	
-	var severity = LensSeverity.OTHER
+	fun setPropertiesFrom(info: HighlightInfo) {
+		text = getValidDescriptionText(info.description)
+		severity = LensSeverity.from(info.severity)
+	}
 	
 	override fun paint(inlay: Inlay<*>, g: Graphics, r: Rectangle, textAttributes: TextAttributes) {
-		r.y += 1
+		fixBaselineForTextRendering(r)
 		super.paint(inlay, g, r, textAttributes)
 	}
 	
 	override fun getTextAttributes(editor: Editor): TextAttributes {
-		return ATTRIBUTES.also { it.foregroundColor = severity.getColor(editor) }
+		return ATTRIBUTES_SINGLETON.also { it.foregroundColor = severity.getColor(editor) }
 	}
 	
 	override fun useEditorFont(): Boolean {
 		return true
+	}
+	
+	private companion object {
+		private val ATTRIBUTES_SINGLETON = TextAttributes(null, null, null, null, Font.ITALIC)
+		
+		private fun getValidDescriptionText(text: String?): String {
+			return if (text.isNullOrBlank()) " " else addMissingPeriod(text)
+		}
+		
+		private fun addMissingPeriod(text: String): String {
+			return if (text.endsWith('.')) text else "$text."
+		}
+		
+		private fun fixBaselineForTextRendering(rect: Rectangle) {
+			rect.y += 1
+		}
 	}
 }

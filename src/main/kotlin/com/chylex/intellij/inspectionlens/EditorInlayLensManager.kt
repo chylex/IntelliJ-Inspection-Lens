@@ -26,13 +26,9 @@ class EditorInlayLensManager private constructor(private val editor: Editor) {
 			}
 		}
 		
-		private fun updateRenderer(renderer: LensRenderer, info: HighlightInfo) {
-			renderer.text = info.description.takeIf(String::isNotBlank)?.let(::addMissingPeriod) ?: " "
-			renderer.severity = LensSeverity.from(info.severity)
-		}
-		
-		private fun addMissingPeriod(text: String): String {
-			return if (text.endsWith('.')) text else "$text."
+		private fun getInlayHintOffset(info: HighlightInfo): Int {
+			// Ensures a highlight at the end of a line does not overflow to the next line.
+			return info.actualEndOffset - 1
 		}
 	}
 	
@@ -41,12 +37,12 @@ class EditorInlayLensManager private constructor(private val editor: Editor) {
 	fun show(highlighter: RangeHighlighter, info: HighlightInfo) {
 		val currentInlay = inlays[highlighter]
 		if (currentInlay != null && currentInlay.isValid) {
-			updateRenderer(currentInlay.renderer, info)
+			currentInlay.renderer.setPropertiesFrom(info)
 			currentInlay.update()
 		}
 		else {
-			val offset = info.actualEndOffset - 1
-			val renderer = LensRenderer().also { updateRenderer(it, info) }
+			val offset = getInlayHintOffset(info)
+			val renderer = LensRenderer(info)
 			val properties = InlayProperties().relatesToPrecedingText(true).priority(-offset)
 			
 			editor.inlayModel.addAfterLineEndElement(offset, properties, renderer)?.let {
