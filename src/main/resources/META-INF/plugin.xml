@@ -11,6 +11,14 @@
   
   <depends>com.intellij.modules.platform</depends>
   
+  <extensions defaultExtensionNs="com.intellij">
+    <applicationService serviceImplementation="com.chylex.intellij.inspectionlens.InspectionLensPluginDisposableService" />
+  </extensions>
+  
+  <applicationListeners>
+    <listener class="com.chylex.intellij.inspectionlens.InspectionLensPluginListener" topic="com.intellij.ide.plugins.DynamicPluginListener" />
+  </applicationListeners>
+  
   <projectListeners>
     <listener class="com.chylex.intellij.inspectionlens.LensFileEditorListener" topic="com.intellij.openapi.fileEditor.FileEditorManagerListener" />
   </projectListeners>

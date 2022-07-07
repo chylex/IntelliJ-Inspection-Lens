@@ -4,7 +4,7 @@ import com.intellij.codeInsight.daemon.impl.HighlightInfo
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.editor.Inlay
 import com.intellij.openapi.editor.InlayProperties
-import com.intellij.openapi.editor.ex.RangeHighlighterEx
+import com.intellij.openapi.editor.markup.RangeHighlighter
 import com.intellij.openapi.util.Key
 
 /**
@@ -18,6 +18,14 @@ class EditorInlayLensManager private constructor(private val editor: Editor) {
 			return editor.getUserData(KEY) ?: EditorInlayLensManager(editor).also { editor.putUserData(KEY, it) }
 		}
 		
+		fun remove(editor: Editor) {
+			val manager = editor.getUserData(KEY)
+			if (manager != null) {
+				manager.hideAll()
+				editor.putUserData(KEY, null)
+			}
+		}
+		
 		private fun updateRenderer(renderer: LensRenderer, info: HighlightInfo) {
 			renderer.text = info.description.takeIf(String::isNotBlank)?.let(::addMissingPeriod) ?: " "
 			renderer.severity = LensSeverity.from(info.severity)
@@ -28,9 +36,9 @@ class EditorInlayLensManager private constructor(private val editor: Editor) {
 		}
 	}
 	
-	private val inlays = mutableMapOf<RangeHighlighterEx, Inlay<LensRenderer>>()
+	private val inlays = mutableMapOf<RangeHighlighter, Inlay<LensRenderer>>()
 	
-	fun show(highlighter: RangeHighlighterEx, info: HighlightInfo) {
+	fun show(highlighter: RangeHighlighter, info: HighlightInfo) {
 		val currentInlay = inlays[highlighter]
 		if (currentInlay != null && currentInlay.isValid) {
 			updateRenderer(currentInlay.renderer, info)
@@ -47,7 +55,12 @@ class EditorInlayLensManager private constructor(private val editor: Editor) {
 		}
 	}
 	
-	fun hide(highlighter: RangeHighlighterEx) {
+	fun hide(highlighter: RangeHighlighter) {
 		inlays.remove(highlighter)?.dispose()
+	}
+	
+	fun hideAll() {
+		inlays.values.forEach(Inlay<*>::dispose)
+		inlays.clear()
 	}
 }
