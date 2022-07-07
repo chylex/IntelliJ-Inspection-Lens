@@ -43,7 +43,7 @@ class EditorInlayLensManager private constructor(private val editor: Editor) {
 		else {
 			val offset = getInlayHintOffset(info)
 			val renderer = LensRenderer(info)
-			val properties = InlayProperties().relatesToPrecedingText(true).priority(-offset)
+			val properties = InlayProperties().relatesToPrecedingText(true).disableSoftWrapping(true).priority(-offset)
 			
 			editor.inlayModel.addAfterLineEndElement(offset, properties, renderer)?.let {
 				inlays[highlighter] = it
