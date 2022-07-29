@@ -3,8 +3,8 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
-	kotlin("jvm") version "1.6.10"
-	id("org.jetbrains.intellij") version "1.6.0"
+	kotlin("jvm") version "1.6.21"
+	id("org.jetbrains.intellij") version "1.7.0"
 }
 
 group = "com.chylex.intellij.inspectionlens"
@@ -15,12 +15,12 @@ repositories {
 }
 
 intellij {
-	version.set("2022.1")
+	version.set("2022.2")
 	updateSinceUntilBuild.set(false)
 }
 
 tasks.patchPluginXml {
-	sinceBuild.set("213")
+	sinceBuild.set("222")
 }
 
 tasks.buildSearchableOptions {
