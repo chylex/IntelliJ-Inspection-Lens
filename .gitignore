@@ -1,13 +1,8 @@
-/.idea/dictionaries
-/.idea/inspectionProfiles
-/.idea/libraries
-/.idea/modules
-
-/.idea/*.iml
-/.idea/.name
-/.idea/jarRepositories.xml
-/.idea/misc.xml
-/.idea/modules.xml
+/.idea/*
+!/.idea/compiler.xml
+!/.idea/encodings.xml
+!/.idea/gradle.xml
+!/.idea/vcs.xml
 
 /.gradle/
 /build/
