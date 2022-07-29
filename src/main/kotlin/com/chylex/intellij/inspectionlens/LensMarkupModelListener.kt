@@ -1,7 +1,6 @@
 package com.chylex.intellij.inspectionlens
 
 import com.chylex.intellij.inspectionlens.util.MultiParentDisposable
-import com.intellij.codeInsight.daemon.impl.AsyncDescriptionSupplier
 import com.intellij.codeInsight.daemon.impl.HighlightInfo
 import com.intellij.lang.annotation.HighlightSeverity
 import com.intellij.openapi.application.ApplicationManager
@@ -32,35 +31,51 @@ class LensMarkupModelListener private constructor(editor: Editor) : MarkupModelL
 	}
 	
 	private fun showIfValid(highlighter: RangeHighlighter) {
-		if (!highlighter.isValid) {
-			return
-		}
-		
-		val info = HighlightInfo.fromRangeHighlighter(highlighter)
-		if (info == null || info.severity.myVal < MINIMUM_SEVERITY) {
-			return
-		}
-		
-		if (info is AsyncDescriptionSupplier) {
-			info.requestDescription().onSuccess {
-				if (highlighter.isValid) {
-					showIfNonNullDescription(highlighter, info)
-				}
-			}
-		}
-		else {
-			showIfNonNullDescription(highlighter, info)
-		}
+		runWithHighlighterIfValid(highlighter, lens::show, ::showAsynchronously)
 	}
 	
-	private fun showIfNonNullDescription(highlighter: RangeHighlighter, info: HighlightInfo) {
-		if (info.description != null) {
-			lens.show(highlighter, info)
+	private fun showAllValid(highlighters: Array<RangeHighlighter>) {
+		val immediateHighlighters = mutableListOf<HighlighterWithInfo>()
+		
+		for (highlighter in highlighters) {
+			runWithHighlighterIfValid(highlighter, immediateHighlighters::add, ::showAsynchronously)
+		}
+		
+		lens.showAll(immediateHighlighters)
+	}
+	
+	private fun showAsynchronously(highlighterWithInfo: HighlighterWithInfo.Async) {
+		highlighterWithInfo.requestDescription {
+			if (highlighterWithInfo.highlighter.isValid && highlighterWithInfo.hasDescription) {
+				lens.show(highlighterWithInfo)
+			}
 		}
 	}
 	
 	companion object {
 		private val MINIMUM_SEVERITY = HighlightSeverity.DEFAULT_SEVERITIES.toList().minusElement(HighlightSeverity.INFORMATION).minOf(HighlightSeverity::myVal)
+		
+		private inline fun runWithHighlighterIfValid(highlighter: RangeHighlighter, actionForImmediate: (HighlighterWithInfo) -> Unit, actionForAsync: (HighlighterWithInfo.Async) -> Unit) {
+			if (!highlighter.isValid) {
+				return
+			}
+			
+			val info = HighlightInfo.fromRangeHighlighter(highlighter)
+			if (info == null || info.severity.myVal < MINIMUM_SEVERITY) {
+				return
+			}
+			
+			processHighlighterWithInfo(HighlighterWithInfo.from(highlighter, info), actionForImmediate, actionForAsync)
+		}
+		
+		private inline fun processHighlighterWithInfo(highlighterWithInfo: HighlighterWithInfo, actionForImmediate: (HighlighterWithInfo) -> Unit, actionForAsync: (HighlighterWithInfo.Async) -> Unit) {
+			if (highlighterWithInfo is HighlighterWithInfo.Async) {
+				actionForAsync(highlighterWithInfo)
+			}
+			else if (highlighterWithInfo.hasDescription) {
+				actionForImmediate(highlighterWithInfo)
+			}
+		}
 		
 		/**
 		 * Attaches a new [LensMarkupModelListener] to the document model of the provided [TextEditor], and reports all existing inspection highlights to [EditorInlayLensManager].
@@ -79,10 +94,7 @@ class LensMarkupModelListener private constructor(editor: Editor) : MarkupModelL
 				
 				val listener = LensMarkupModelListener(editor)
 				markupModel.addMarkupModelListener(listenerDisposable.self, listener)
-				
-				for (highlighter in markupModel.allHighlighters) {
-					listener.showIfValid(highlighter)
-				}
+				listener.showAllValid(markupModel.allHighlighters)
 			}
 		}
 	}
