@@ -37,7 +37,7 @@ class LensMarkupModelListener private constructor(editor: Editor) : MarkupModelL
 		}
 		
 		val info = HighlightInfo.fromRangeHighlighter(highlighter)
-		if (info == null || info.severity.myVal <= HighlightSeverity.INFORMATION.myVal) {
+		if (info == null || info.severity.myVal < MINIMUM_SEVERITY) {
 			return
 		}
 		
@@ -60,6 +60,8 @@ class LensMarkupModelListener private constructor(editor: Editor) : MarkupModelL
 	}
 	
 	companion object {
+		private val MINIMUM_SEVERITY = HighlightSeverity.DEFAULT_SEVERITIES.toList().minusElement(HighlightSeverity.INFORMATION).minOf(HighlightSeverity::myVal)
+		
 		/**
 		 * Attaches a new [LensMarkupModelListener] to the document model of the provided [TextEditor], and reports all existing inspection highlights to [EditorInlayLensManager].
 		 * 
