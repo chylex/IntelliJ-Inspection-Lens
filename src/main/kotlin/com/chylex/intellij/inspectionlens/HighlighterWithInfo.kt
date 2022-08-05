@@ -13,7 +13,7 @@ open class HighlighterWithInfo private constructor(val highlighter: RangeHighlig
 	operator fun component2() = info
 	
 	class Async(highlighter: RangeHighlighter, info: HighlightInfo, private val provider: AsyncDescriptionSupplier) : HighlighterWithInfo(highlighter, info) {
-		fun requestDescription(callback: Consumer<String>) {
+		fun requestDescription(callback: Consumer<String?>) {
 			provider.requestDescription().onSuccess(callback)
 		}
 	}
