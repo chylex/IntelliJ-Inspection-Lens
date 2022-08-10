@@ -53,7 +53,7 @@ class LensMarkupModelListener private constructor(editor: Editor) : MarkupModelL
 	}
 	
 	companion object {
-		private val MINIMUM_SEVERITY = HighlightSeverity.DEFAULT_SEVERITIES.toList().minusElement(HighlightSeverity.INFORMATION).minOf(HighlightSeverity::myVal)
+		private val MINIMUM_SEVERITY = HighlightSeverity.TEXT_ATTRIBUTES.myVal + 1
 		
 		private inline fun runWithHighlighterIfValid(highlighter: RangeHighlighter, actionForImmediate: (HighlighterWithInfo) -> Unit, actionForAsync: (HighlighterWithInfo.Async) -> Unit) {
 			if (!highlighter.isValid) {
