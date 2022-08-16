@@ -47,7 +47,15 @@ class LensMarkupModelListener private constructor(editor: Editor) : MarkupModelL
 	private fun showAsynchronously(highlighterWithInfo: HighlighterWithInfo.Async) {
 		highlighterWithInfo.requestDescription {
 			if (highlighterWithInfo.highlighter.isValid && highlighterWithInfo.hasDescription) {
-				lens.show(highlighterWithInfo)
+				val application = ApplicationManager.getApplication()
+				if (application.isDispatchThread) {
+					lens.show(highlighterWithInfo)
+				}
+				else {
+					application.invokeLater {
+						lens.show(highlighterWithInfo)
+					}
+				}
 			}
 		}
 	}
