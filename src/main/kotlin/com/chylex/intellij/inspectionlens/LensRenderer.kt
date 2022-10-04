@@ -42,7 +42,7 @@ class LensRenderer(info: HighlightInfo) : HintRenderer(null) {
 		private val ATTRIBUTES_SINGLETON = TextAttributes(null, null, null, null, Font.ITALIC)
 		
 		private fun getValidDescriptionText(text: String?): String {
-			return if (text.isNullOrBlank()) " " else StringUtil.unescapeXmlEntities(addMissingPeriod(text))
+			return if (text.isNullOrBlank()) " " else addMissingPeriod(StringUtil.unescapeXmlEntities(StringUtil.stripHtml(text, " ")))
 		}
 		
 		private fun addMissingPeriod(text: String): String {
