@@ -17,6 +17,11 @@
   ]]></description>
   
   <change-notes><![CDATA[
+    <b>Version 1.1.0</b>
+    <ul>
+      <li>Fixed showing inspections that include HTML in their description. (<a href="https://github.com/chylex/IntelliJ-Inspection-Lens/pull/3">PR #3</a> by <a href="https://github.com/KostkaBrukowa">KostkaBrukowa</a>)</li>
+      <li>Fixed exception when asynchronous inspections run on a non-EDT thread.
+    </ul>
     <b>Version 1.0.0</b>
     <ul>
       <li>Initial version with support for IntelliJ 2022.2 and newer.</li>
