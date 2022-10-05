@@ -63,17 +63,18 @@ class LensMarkupModelListener private constructor(editor: Editor) : MarkupModelL
 	companion object {
 		private val MINIMUM_SEVERITY = HighlightSeverity.TEXT_ATTRIBUTES.myVal + 1
 		
+		private fun getHighlightInfoIfValid(highlighter: RangeHighlighter): HighlightInfo? {
+			return if (highlighter.isValid)
+				HighlightInfo.fromRangeHighlighter(highlighter)?.takeIf { it.severity.myVal >= MINIMUM_SEVERITY }
+			else
+				null
+		}
+		
 		private inline fun runWithHighlighterIfValid(highlighter: RangeHighlighter, actionForImmediate: (HighlighterWithInfo) -> Unit, actionForAsync: (HighlighterWithInfo.Async) -> Unit) {
-			if (!highlighter.isValid) {
-				return
+			val info = getHighlightInfoIfValid(highlighter)
+			if (info != null) {
+				processHighlighterWithInfo(HighlighterWithInfo.from(highlighter, info), actionForImmediate, actionForAsync)
 			}
-			
-			val info = HighlightInfo.fromRangeHighlighter(highlighter)
-			if (info == null || info.severity.myVal < MINIMUM_SEVERITY) {
-				return
-			}
-			
-			processHighlighterWithInfo(HighlighterWithInfo.from(highlighter, info), actionForImmediate, actionForAsync)
 		}
 		
 		private inline fun processHighlighterWithInfo(highlighterWithInfo: HighlighterWithInfo, actionForImmediate: (HighlighterWithInfo) -> Unit, actionForAsync: (HighlighterWithInfo.Async) -> Unit) {
