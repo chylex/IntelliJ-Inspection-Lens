@@ -1,6 +1,5 @@
 package com.chylex.intellij.inspectionlens
 
-import com.chylex.intellij.inspectionlens.util.MultiParentDisposable
 import com.intellij.codeInsight.daemon.impl.HighlightInfo
 import com.intellij.lang.annotation.HighlightSeverity
 import com.intellij.openapi.application.ApplicationManager
@@ -11,6 +10,9 @@ import com.intellij.openapi.editor.impl.DocumentMarkupModel
 import com.intellij.openapi.editor.impl.event.MarkupModelListener
 import com.intellij.openapi.editor.markup.RangeHighlighter
 import com.intellij.openapi.fileEditor.TextEditor
+import com.intellij.openapi.rd.createLifetime
+import com.intellij.openapi.rd.createNestedDisposable
+import com.jetbrains.rd.util.lifetime.intersect
 
 /**
  * Listens for inspection highlights and reports them to [EditorInlayLensManager].
@@ -95,14 +97,11 @@ class LensMarkupModelListener private constructor(editor: Editor) : MarkupModelL
 			val editor = textEditor.editor
 			val markupModel = DocumentMarkupModel.forDocument(editor.document, editor.project, false)
 			if (markupModel is MarkupModelEx) {
-				val pluginDisposable = ApplicationManager.getApplication().getService(InspectionLensPluginDisposableService::class.java)
-				
-				val listenerDisposable = MultiParentDisposable()
-				listenerDisposable.registerWithParent(textEditor)
-				listenerDisposable.registerWithParent(pluginDisposable)
+				val pluginLifetime = ApplicationManager.getApplication().getService(InspectionLensPluginDisposableService::class.java).createLifetime()
+				val editorLifetime = textEditor.createLifetime()
 				
 				val listener = LensMarkupModelListener(editor)
-				markupModel.addMarkupModelListener(listenerDisposable.self, listener)
+				markupModel.addMarkupModelListener(pluginLifetime.intersect(editorLifetime).createNestedDisposable(), listener)
 				listener.showAllValid(markupModel.allHighlighters)
 			}
 		}
