@@ -14,6 +14,10 @@ repositories {
 	mavenCentral()
 }
 
+dependencies {
+	testImplementation("org.junit.jupiter:junit-jupiter:5.9.0")
+}
+
 intellij {
 	version.set("2022.2")
 	updateSinceUntilBuild.set(false)
@@ -25,6 +29,10 @@ tasks.patchPluginXml {
 
 tasks.buildSearchableOptions {
 	enabled = false
+}
+
+tasks.test {
+	useJUnitPlatform()
 }
 
 tasks.withType<KotlinCompile> {
