@@ -42,11 +42,21 @@ class LensRenderer(info: HighlightInfo) : HintRenderer(null) {
 		private val ATTRIBUTES_SINGLETON = TextAttributes(null, null, null, null, Font.ITALIC)
 		
 		private fun getValidDescriptionText(text: String?): String {
-			return if (text.isNullOrBlank()) " " else addMissingPeriod(StringUtil.unescapeXmlEntities(StringUtil.stripHtml(text, " ")))
+			return if (text.isNullOrBlank()) " " else addMissingPeriod(convertHtmlToText(text))
+		}
+		
+		private fun convertHtmlToText(potentialHtml: String): String {
+			return potentialHtml
+				.ifContains('<') { StringUtil.stripHtml(it, " ") }
+				.ifContains('&', StringUtil::unescapeXmlEntities)
 		}
 		
 		private fun addMissingPeriod(text: String): String {
 			return if (text.endsWith('.')) text else "$text."
+		}
+		
+		private inline fun String.ifContains(charToTest: Char, action: (String) -> String): String {
+			return if (this.contains(charToTest)) action(this) else this
 		}
 		
 		private fun fixBaselineForTextRendering(rect: Rectangle) {
