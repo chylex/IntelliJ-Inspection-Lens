@@ -1,6 +1,5 @@
 package com.chylex.intellij.inspectionlens
 
-import com.chylex.intellij.inspectionlens.EditorInlayLensManager.Companion.MAXIMUM_SEVERITY
 import com.intellij.codeInsight.daemon.impl.HighlightInfo
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.editor.Inlay
@@ -17,10 +16,10 @@ class EditorInlayLensManager private constructor(private val editor: Editor) {
 		
 		/**
 		 * Highest allowed severity for the purposes of sorting multiple highlights at the same offset.
-		 * A [MAXIMUM_SEVERITY] of 500 allows for 8 589 933 positions in the document before sorting breaks down.
 		 * The value is a little higher than the highest [com.intellij.lang.annotation.HighlightSeverity], in case severities with higher values are introduced in the future.
 		 */
 		private const val MAXIMUM_SEVERITY = 500
+		private const val MAXIMUM_POSITION = ((Int.MAX_VALUE / MAXIMUM_SEVERITY) * 2) - 1
 		
 		fun getOrCreate(editor: Editor): EditorInlayLensManager {
 			return editor.getUserData(KEY) ?: EditorInlayLensManager(editor).also { editor.putUserData(KEY, it) }
@@ -39,17 +38,13 @@ class EditorInlayLensManager private constructor(private val editor: Editor) {
 			return info.actualEndOffset - 1
 		}
 		
-		internal fun getInlayHintPriority(offset: Int, severity: Int): Int {
-			// Sorts highlights first by offset in the document, then by severity.
-			val positionBucket = offset.coerceAtLeast(0) * MAXIMUM_SEVERITY.toLong()
-			val positionFactor = (Int.MAX_VALUE - MAXIMUM_SEVERITY - positionBucket).coerceAtLeast(Int.MIN_VALUE + 1L).toInt()
-			val severityFactor = severity.coerceIn(0, MAXIMUM_SEVERITY)
-			// The result is between (Int.MIN_VALUE + 1)..Int.MAX_VALUE, allowing for negation without overflow.
+		internal fun getInlayHintPriority(position: Int, severity: Int): Int {
+			// Sorts highlights first by position on the line, then by severity.
+			val positionBucket = position.coerceIn(0, MAXIMUM_POSITION) * MAXIMUM_SEVERITY
+			// The multiplication can overflow, but subtracting overflowed result from Int.MAX_VALUE does not break continuity.
+			val positionFactor = Integer.MAX_VALUE - positionBucket
+			val severityFactor = severity.coerceIn(0, MAXIMUM_SEVERITY) - MAXIMUM_SEVERITY
 			return positionFactor + severityFactor
-		}
-		
-		private fun getInlayHintPriority(info: HighlightInfo): Int {
-			return getInlayHintPriority(info.actualEndOffset, info.severity.myVal)
 		}
 	}
 	
@@ -85,6 +80,17 @@ class EditorInlayLensManager private constructor(private val editor: Editor) {
 	fun hideAll() {
 		executeInInlayBatchMode(inlays.size) { inlays.values.forEach(Inlay<*>::dispose) }
 		inlays.clear()
+	}
+	
+	private fun getInlayHintPriority(info: HighlightInfo): Int {
+		val startOffset = info.actualStartOffset
+		val positionOnLine = startOffset - getLineStartOffset(startOffset)
+		return getInlayHintPriority(positionOnLine, info.severity.myVal)
+	}
+	
+	private fun getLineStartOffset(offset: Int): Int {
+		val position = editor.offsetToLogicalPosition(offset)
+		return editor.document.getLineStartOffset(position.line)
 	}
 	
 	private fun executeInInlayBatchMode(operations: Int, block: () -> Unit) {
