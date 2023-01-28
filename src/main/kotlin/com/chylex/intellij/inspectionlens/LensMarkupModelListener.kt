@@ -61,13 +61,15 @@ class LensMarkupModelListener private constructor(editor: Editor) : MarkupModelL
 			}
 		}
 	}
-	
+
 	companion object {
-		private val MINIMUM_SEVERITY = HighlightSeverity.TEXT_ATTRIBUTES.myVal + 1
+		// This is the same as adding one to the value of HighlightSeverity.TEXT
+		// but HighlightSeverity.TEXT is not available in 2022.1
+		private val MINIMUM_SEVERITY = HighlightSeverity.INFORMATION.myVal + 2
 		
 		private fun getHighlightInfoIfValid(highlighter: RangeHighlighter): HighlightInfo? {
 			return if (highlighter.isValid)
-				HighlightInfo.fromRangeHighlighter(highlighter)?.takeIf { it.severity.myVal >= MINIMUM_SEVERITY }
+				HighlightInfo.fromRangeHighlighter(highlighter)?.takeIf {it.severity.myVal >= MINIMUM_SEVERITY }
 			else
 				null
 		}
@@ -107,3 +109,4 @@ class LensMarkupModelListener private constructor(editor: Editor) : MarkupModelL
 		}
 	}
 }
+
