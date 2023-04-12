@@ -31,7 +31,7 @@ class LensRenderer(info: HighlightInfo) : HintRenderer(null) {
 	}
 	
 	override fun getTextAttributes(editor: Editor): TextAttributes {
-		return ATTRIBUTES_SINGLETON.also { it.foregroundColor = severity.getColor(editor) }
+		return ATTRIBUTES_SINGLETON.also { it.foregroundColor = severity.color }
 	}
 	
 	override fun useEditorFont(): Boolean {
