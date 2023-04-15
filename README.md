@@ -1,3 +1,5 @@
+# Inspection Lens <img align="right" src="logo.png" alt="Plugin Logo">
+
 IntelliJ plugin that shows errors, warnings, and other inspection highlights inline.
 
 Simply install the plugin and inspection descriptions will appear on the right side of the lines. Shown inspection severities are **Errors**, **Warnings**, **Weak Warnings**, **Server Problems**, **Typos**, and other inspections from plugins or future IntelliJ versions that have a high enough severity level. Each severity has a different color, with support for both light and dark themes.
