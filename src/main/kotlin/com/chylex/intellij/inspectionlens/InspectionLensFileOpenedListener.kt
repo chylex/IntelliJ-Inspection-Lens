@@ -1,5 +1,6 @@
 package com.chylex.intellij.inspectionlens
 
+import com.chylex.intellij.inspectionlens.editor.LensMarkupModelListener
 import com.intellij.openapi.fileEditor.FileEditorManager
 import com.intellij.openapi.fileEditor.FileOpenedSyncListener
 import com.intellij.openapi.fileEditor.TextEditor
@@ -9,7 +10,7 @@ import com.intellij.openapi.vfs.VirtualFile
 /**
  * Listens for newly opened editors, and installs a [LensMarkupModelListener] on them.
  */
-class LensFileOpenedListener : FileOpenedSyncListener {
+class InspectionLensFileOpenedListener : FileOpenedSyncListener {
 	override fun fileOpenedSync(source: FileEditorManager, file: VirtualFile, editorsWithProviders: List<FileEditorWithProvider>) {
 		for (editorWrapper in editorsWithProviders) {
 			val fileEditor = editorWrapper.fileEditor

@@ -44,6 +44,6 @@
   </applicationListeners>
   
   <projectListeners>
-    <listener class="com.chylex.intellij.inspectionlens.LensFileOpenedListener" topic="com.intellij.openapi.fileEditor.FileOpenedSyncListener" />
+    <listener class="com.chylex.intellij.inspectionlens.InspectionLensFileOpenedListener" topic="com.intellij.openapi.fileEditor.FileOpenedSyncListener" />
   </projectListeners>
 </idea-plugin>

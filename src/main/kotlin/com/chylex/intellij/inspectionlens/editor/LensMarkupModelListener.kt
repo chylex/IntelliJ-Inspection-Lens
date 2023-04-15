@@ -1,5 +1,6 @@
-package com.chylex.intellij.inspectionlens
+package com.chylex.intellij.inspectionlens.editor
 
+import com.chylex.intellij.inspectionlens.InspectionLensPluginDisposableService
 import com.intellij.codeInsight.daemon.impl.HighlightInfo
 import com.intellij.lang.annotation.HighlightSeverity
 import com.intellij.openapi.application.ApplicationManager

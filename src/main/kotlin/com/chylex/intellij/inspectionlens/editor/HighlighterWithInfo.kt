@@ -1,4 +1,4 @@
-package com.chylex.intellij.inspectionlens
+package com.chylex.intellij.inspectionlens.editor
 
 import com.intellij.codeInsight.daemon.impl.AsyncDescriptionSupplier
 import com.intellij.codeInsight.daemon.impl.HighlightInfo

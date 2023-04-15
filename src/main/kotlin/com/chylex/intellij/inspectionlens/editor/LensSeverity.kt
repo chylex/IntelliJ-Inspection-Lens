@@ -1,4 +1,4 @@
-package com.chylex.intellij.inspectionlens
+package com.chylex.intellij.inspectionlens.editor
 
 import com.intellij.lang.annotation.HighlightSeverity
 import com.intellij.ui.ColorUtil

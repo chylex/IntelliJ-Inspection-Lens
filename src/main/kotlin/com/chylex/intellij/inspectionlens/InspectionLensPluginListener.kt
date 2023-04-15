@@ -1,5 +1,7 @@
 package com.chylex.intellij.inspectionlens
 
+import com.chylex.intellij.inspectionlens.editor.EditorInlayLensManager
+import com.chylex.intellij.inspectionlens.editor.LensMarkupModelListener
 import com.intellij.ide.plugins.DynamicPluginListener
 import com.intellij.ide.plugins.IdeaPluginDescriptor
 import com.intellij.openapi.fileEditor.FileEditorManager

@@ -1,5 +1,6 @@
 package com.chylex.intellij.inspectionlens
 
+import com.chylex.intellij.inspectionlens.editor.EditorInlayLensManager
 import com.intellij.lang.annotation.HighlightSeverity
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Nested
