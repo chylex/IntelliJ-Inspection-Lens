@@ -17,6 +17,11 @@
   ]]></description>
   
   <change-notes><![CDATA[
+    <b>Version 1.1.2</b>
+    <ul>
+      <li>Added plugin icon.</li>
+      <li>Updated minimum version to IntelliJ 2023.1 due to deprecated APIs.</li>
+    </ul>
     <b>Version 1.1.1</b>
     <ul>
       <li>Multiple inspections at the same place in the document are now ordered by severity.</li>
