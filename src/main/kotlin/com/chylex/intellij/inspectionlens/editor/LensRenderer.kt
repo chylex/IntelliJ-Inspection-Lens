@@ -30,7 +30,7 @@ class LensRenderer(info: HighlightInfo) : HintRenderer(null) {
 	}
 	
 	override fun getTextAttributes(editor: Editor): TextAttributes {
-		return severity.colorAttributes
+		return severity.textAttributes
 	}
 	
 	override fun useEditorFont(): Boolean {
