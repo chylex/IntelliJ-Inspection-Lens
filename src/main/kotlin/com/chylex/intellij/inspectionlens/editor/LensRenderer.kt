@@ -6,7 +6,6 @@ import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.editor.Inlay
 import com.intellij.openapi.editor.markup.TextAttributes
 import com.intellij.openapi.util.text.StringUtil
-import java.awt.Font
 import java.awt.Graphics
 import java.awt.Rectangle
 
@@ -31,7 +30,7 @@ class LensRenderer(info: HighlightInfo) : HintRenderer(null) {
 	}
 	
 	override fun getTextAttributes(editor: Editor): TextAttributes {
-		return ATTRIBUTES_SINGLETON.also { it.foregroundColor = severity.color }
+		return severity.colorAttributes
 	}
 	
 	override fun useEditorFont(): Boolean {
@@ -39,8 +38,6 @@ class LensRenderer(info: HighlightInfo) : HintRenderer(null) {
 	}
 	
 	private companion object {
-		private val ATTRIBUTES_SINGLETON = TextAttributes(null, null, null, null, Font.ITALIC)
-		
 		private fun getValidDescriptionText(text: String?): String {
 			return if (text.isNullOrBlank()) " " else addMissingPeriod(convertHtmlToText(text))
 		}

@@ -4,6 +4,7 @@ import com.intellij.lang.annotation.HighlightSeverity
 import com.intellij.ui.ColorUtil
 import com.intellij.ui.JBColor
 import java.awt.Color
+import java.awt.Font
 
 /**
  * Determines properties of inspection lenses based on severity.
@@ -16,12 +17,14 @@ enum class LensSeverity(baseColor: Color, lightThemeDarkening: Int, darkThemeBri
 	SERVER_PROBLEM (Color(176,  97,   0), lightThemeDarkening = 4, darkThemeBrightening = 2),
 	OTHER          (Color(128, 128, 128), lightThemeDarkening = 1, darkThemeBrightening = 2);
 	
-	val color: JBColor
+	val colorAttributes: LensSeverityTextAttributes
 	
 	init {
 		val lightThemeColor = ColorUtil.saturate(ColorUtil.darker(baseColor, lightThemeDarkening), 1)
 		val darkThemeColor = ColorUtil.desaturate(ColorUtil.brighter(baseColor, darkThemeBrightening), 2)
-		color = JBColor(lightThemeColor, darkThemeColor)
+		
+		val textColor = JBColor(lightThemeColor, darkThemeColor)
+		colorAttributes = LensSeverityTextAttributes(foregroundColor = textColor, fontStyle = Font.ITALIC)
 	}
 	
 	companion object {
