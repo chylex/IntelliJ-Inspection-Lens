@@ -12,7 +12,7 @@ import com.intellij.openapi.util.Key
  */
 class EditorInlayLensManager private constructor(private val editor: Editor) {
 	companion object {
-		private val KEY = Key<EditorInlayLensManager>(EditorInlayLensManager::class.java.name)
+		private val EDITOR_KEY = Key<EditorInlayLensManager>(EditorInlayLensManager::class.java.name)
 		
 		/**
 		 * Highest allowed severity for the purposes of sorting multiple highlights at the same offset.
@@ -22,14 +22,14 @@ class EditorInlayLensManager private constructor(private val editor: Editor) {
 		private const val MAXIMUM_POSITION = ((Int.MAX_VALUE / MAXIMUM_SEVERITY) * 2) - 1
 		
 		fun getOrCreate(editor: Editor): EditorInlayLensManager {
-			return editor.getUserData(KEY) ?: EditorInlayLensManager(editor).also { editor.putUserData(KEY, it) }
+			return editor.getUserData(EDITOR_KEY) ?: EditorInlayLensManager(editor).also { editor.putUserData(EDITOR_KEY, it) }
 		}
 		
 		fun remove(editor: Editor) {
-			val manager = editor.getUserData(KEY)
+			val manager = editor.getUserData(EDITOR_KEY)
 			if (manager != null) {
 				manager.hideAll()
-				editor.putUserData(KEY, null)
+				editor.putUserData(EDITOR_KEY, null)
 			}
 		}
 		
@@ -82,8 +82,10 @@ class EditorInlayLensManager private constructor(private val editor: Editor) {
 	}
 	
 	fun hideAll() {
-		executeInInlayBatchMode(inlays.size) { inlays.values.forEach(Inlay<*>::dispose) }
-		inlays.clear()
+		if (inlays.isNotEmpty()) {
+			executeInInlayBatchMode(inlays.size) { inlays.values.forEach(Inlay<*>::dispose) }
+			inlays.clear()
+		}
 	}
 	
 	private fun getInlayHintPriority(info: HighlightInfo): Int {

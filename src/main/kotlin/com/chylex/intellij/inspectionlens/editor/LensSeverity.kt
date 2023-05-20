@@ -1,5 +1,7 @@
 package com.chylex.intellij.inspectionlens.editor
 
+import com.chylex.intellij.inspectionlens.InspectionLens
+import com.chylex.intellij.inspectionlens.utils.DebouncingInvokeOnDispatchThread
 import com.intellij.lang.annotation.HighlightSeverity
 import com.intellij.spellchecker.SpellCheckerSeveritiesProvider
 import com.intellij.ui.ColorUtil
@@ -40,13 +42,20 @@ enum class LensSeverity(baseColor: Color, lightThemeDarkening: Int, darkThemeBri
 			SpellCheckerSeveritiesProvider.TYPO               to TYPO,
 		))
 		
+		private val refreshLater = DebouncingInvokeOnDispatchThread<Unit> { InspectionLens.refresh() }
+		
 		/**
-		 * Registers a mapping from a [HighlightSeverity] to a [LensSeverity]. Does not refresh existing editors.
+		 * Registers a mapping from a [HighlightSeverity] to a [LensSeverity], and refreshes all open editors.
 		 */
 		internal fun registerMapping(severity: HighlightSeverity, lensSeverity: LensSeverity) {
-			mapping[severity] = lensSeverity
+			if (mapping.put(severity, lensSeverity) != lensSeverity) {
+				refreshLater.enqueue(Unit)
+			}
 		}
 		
+		/**
+		 * Returns the [LensSeverity] associated with the [HighlightSeverity], or [OTHER] if there no explicit mapping is found.
+		 */
 		fun from(severity: HighlightSeverity): LensSeverity {
 			return mapping.getOrDefault(severity, OTHER)
 		}

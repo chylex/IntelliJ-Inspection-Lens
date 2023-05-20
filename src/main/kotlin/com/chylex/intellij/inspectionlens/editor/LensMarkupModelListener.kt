@@ -1,25 +1,22 @@
 package com.chylex.intellij.inspectionlens.editor
 
-import com.chylex.intellij.inspectionlens.InspectionLensPluginDisposableService
 import com.chylex.intellij.inspectionlens.utils.DebouncingInvokeOnDispatchThread
 import com.intellij.codeInsight.daemon.impl.HighlightInfo
 import com.intellij.lang.annotation.HighlightSeverity
-import com.intellij.openapi.application.ApplicationManager
+import com.intellij.openapi.Disposable
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.editor.ex.MarkupModelEx
 import com.intellij.openapi.editor.ex.RangeHighlighterEx
 import com.intellij.openapi.editor.impl.DocumentMarkupModel
 import com.intellij.openapi.editor.impl.event.MarkupModelListener
 import com.intellij.openapi.editor.markup.RangeHighlighter
-import com.intellij.openapi.fileEditor.TextEditor
-import com.intellij.openapi.rd.createLifetime
-import com.intellij.openapi.rd.createNestedDisposable
-import com.jetbrains.rd.util.lifetime.intersect
+import com.intellij.openapi.util.Disposer
+import com.intellij.openapi.util.Key
 
 /**
  * Listens for inspection highlights and reports them to [EditorInlayLensManager].
  */
-class LensMarkupModelListener private constructor(editor: Editor) : MarkupModelListener {
+internal class LensMarkupModelListener private constructor(editor: Editor) : MarkupModelListener {
 	private val lens = EditorInlayLensManager.getOrCreate(editor)
 	
 	private val showOnDispatchThread = DebouncingInvokeOnDispatchThread(lens::showAll)
@@ -51,7 +48,12 @@ class LensMarkupModelListener private constructor(editor: Editor) : MarkupModelL
 		}
 	}
 	
+	private fun showAllValid(highlighters: Array<RangeHighlighter>) {
+		highlighters.forEach(::showIfValid)
+	}
+	
 	companion object {
+		private val EDITOR_KEY = Key<LensMarkupModelListener>(LensMarkupModelListener::class.java.name)
 		private val MINIMUM_SEVERITY = HighlightSeverity.TEXT_ATTRIBUTES.myVal + 1
 		
 		private fun getFilteredHighlightInfo(highlighter: RangeHighlighter): HighlightInfo? {
@@ -74,25 +76,36 @@ class LensMarkupModelListener private constructor(editor: Editor) : MarkupModelL
 			}
 		}
 		
+		private fun getMarkupModel(editor: Editor): MarkupModelEx? {
+			return DocumentMarkupModel.forDocument(editor.document, editor.project, false) as? MarkupModelEx
+		}
+		
 		/**
-		 * Attaches a new [LensMarkupModelListener] to the document model of the provided [TextEditor], and reports all existing inspection highlights to [EditorInlayLensManager].
-		 *
-		 * The [LensMarkupModelListener] will be disposed when either the [TextEditor] is disposed, or via [InspectionLensPluginDisposableService] when the plugin is unloaded.
+		 * Attaches a new [LensMarkupModelListener] to the [Editor], and reports all existing inspection highlights to [EditorInlayLensManager].
 		 */
-		fun install(textEditor: TextEditor) {
-			val editor = textEditor.editor
-			val markupModel = DocumentMarkupModel.forDocument(editor.document, editor.project, false)
-			if (markupModel is MarkupModelEx) {
-				val pluginLifetime = ApplicationManager.getApplication().getService(InspectionLensPluginDisposableService::class.java).createLifetime()
-				val editorLifetime = textEditor.createLifetime()
-				
-				val listener = LensMarkupModelListener(editor)
-				markupModel.addMarkupModelListener(pluginLifetime.intersect(editorLifetime).createNestedDisposable(), listener)
-				
-				for (highlighter in markupModel.allHighlighters) {
-					listener.showIfValid(highlighter)
-				}
+		fun register(editor: Editor, disposable: Disposable) {
+			if (editor.getUserData(EDITOR_KEY) != null) {
+				return
 			}
+			
+			val markupModel = getMarkupModel(editor) ?: return
+			val listener = LensMarkupModelListener(editor)
+			
+			editor.putUserData(EDITOR_KEY, listener)
+			Disposer.register(disposable) { editor.putUserData(EDITOR_KEY, null) }
+			
+			markupModel.addMarkupModelListener(disposable, listener)
+			listener.showAllValid(markupModel.allHighlighters)
+		}
+		
+		/**
+		 * Recreates all inspection highlights in the [Editor].
+		 */
+		fun refresh(editor: Editor) {
+			val listener = editor.getUserData(EDITOR_KEY) ?: return
+			val markupModel = getMarkupModel(editor) ?: return
+			
+			listener.showAllValid(markupModel.allHighlighters)
 		}
 	}
 }
