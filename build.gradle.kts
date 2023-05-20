@@ -21,6 +21,8 @@ dependencies {
 intellij {
 	version.set("2023.1")
 	updateSinceUntilBuild.set(false)
+	
+	plugins.add("tanvd.grazi")
 }
 
 tasks.patchPluginXml {

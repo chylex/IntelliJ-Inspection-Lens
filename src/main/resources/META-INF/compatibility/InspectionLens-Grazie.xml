@@ -1,0 +1,5 @@
+<idea-plugin>
+  <extensions defaultExtensionNs="com.intellij">
+    <postStartupActivity implementation="com.chylex.intellij.inspectionlens.compatibility.GrazieSupport" />
+  </extensions>
+</idea-plugin>
