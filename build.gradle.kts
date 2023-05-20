@@ -18,6 +18,10 @@ dependencies {
 	testImplementation("org.junit.jupiter:junit-jupiter:5.9.0")
 }
 
+kotlin {
+	jvmToolchain(17)
+}
+
 intellij {
 	version.set("2023.1")
 	updateSinceUntilBuild.set(false)
@@ -38,8 +42,7 @@ tasks.test {
 }
 
 tasks.withType<KotlinCompile> {
-	kotlinOptions.jvmTarget = "17"
 	kotlinOptions.freeCompilerArgs = listOf(
-		"-Xjvm-default=enable"
+		"-Xjvm-default=all"
 	)
 }
