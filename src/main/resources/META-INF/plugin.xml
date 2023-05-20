@@ -17,6 +17,11 @@
   ]]></description>
   
   <change-notes><![CDATA[
+    <b>Version 1.2.0</b>
+    <ul>
+      <li>Support for IntelliJ 2023.2 EAP.</li>
+      <li>Added distinct colors for typos and Grazie inspections.</li>
+    </ul>
     <b>Version 1.1.2</b>
     <ul>
       <li>Added plugin icon.</li>
