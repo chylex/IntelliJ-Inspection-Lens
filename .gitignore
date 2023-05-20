@@ -1,8 +1,5 @@
 /.idea/*
-!/.idea/compiler.xml
-!/.idea/encodings.xml
-!/.idea/gradle.xml
-!/.idea/vcs.xml
+!/.idea/runConfigurations
 
 /.gradle/
 /build/
