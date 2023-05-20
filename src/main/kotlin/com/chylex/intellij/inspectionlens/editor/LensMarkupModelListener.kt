@@ -1,6 +1,7 @@
 package com.chylex.intellij.inspectionlens.editor
 
 import com.chylex.intellij.inspectionlens.InspectionLensPluginDisposableService
+import com.chylex.intellij.inspectionlens.utils.DebouncingInvokeOnDispatchThread
 import com.intellij.codeInsight.daemon.impl.HighlightInfo
 import com.intellij.lang.annotation.HighlightSeverity
 import com.intellij.openapi.application.ApplicationManager
@@ -21,6 +22,9 @@ import com.jetbrains.rd.util.lifetime.intersect
 class LensMarkupModelListener private constructor(editor: Editor) : MarkupModelListener {
 	private val lens = EditorInlayLensManager.getOrCreate(editor)
 	
+	private val showOnDispatchThread = DebouncingInvokeOnDispatchThread(lens::showAll)
+	private val hideOnDispatchThread = DebouncingInvokeOnDispatchThread(lens::hideAll)
+	
 	override fun afterAdded(highlighter: RangeHighlighterEx) {
 		showIfValid(highlighter)
 	}
@@ -30,35 +34,19 @@ class LensMarkupModelListener private constructor(editor: Editor) : MarkupModelL
 	}
 	
 	override fun beforeRemoved(highlighter: RangeHighlighterEx) {
-		lens.hide(highlighter)
+		if (getFilteredHighlightInfo(highlighter) != null) {
+			hideOnDispatchThread.enqueue(highlighter)
+		}
 	}
 	
 	private fun showIfValid(highlighter: RangeHighlighter) {
-		runWithHighlighterIfValid(highlighter, lens::show, ::showAsynchronously)
-	}
-	
-	private fun showAllValid(highlighters: Array<RangeHighlighter>) {
-		val immediateHighlighters = mutableListOf<HighlighterWithInfo>()
-		
-		for (highlighter in highlighters) {
-			runWithHighlighterIfValid(highlighter, immediateHighlighters::add, ::showAsynchronously)
-		}
-		
-		lens.showAll(immediateHighlighters)
+		runWithHighlighterIfValid(highlighter, showOnDispatchThread::enqueue, ::showAsynchronously)
 	}
 	
 	private fun showAsynchronously(highlighterWithInfo: HighlighterWithInfo.Async) {
 		highlighterWithInfo.requestDescription {
 			if (highlighterWithInfo.highlighter.isValid && highlighterWithInfo.hasDescription) {
-				val application = ApplicationManager.getApplication()
-				if (application.isDispatchThread) {
-					lens.show(highlighterWithInfo)
-				}
-				else {
-					application.invokeLater {
-						lens.show(highlighterWithInfo)
-					}
-				}
+				showOnDispatchThread.enqueue(highlighterWithInfo)
 			}
 		}
 	}
@@ -66,15 +54,12 @@ class LensMarkupModelListener private constructor(editor: Editor) : MarkupModelL
 	companion object {
 		private val MINIMUM_SEVERITY = HighlightSeverity.TEXT_ATTRIBUTES.myVal + 1
 		
-		private fun getHighlightInfoIfValid(highlighter: RangeHighlighter): HighlightInfo? {
-			return if (highlighter.isValid)
-				HighlightInfo.fromRangeHighlighter(highlighter)?.takeIf { it.severity.myVal >= MINIMUM_SEVERITY }
-			else
-				null
+		private fun getFilteredHighlightInfo(highlighter: RangeHighlighter): HighlightInfo? {
+			return HighlightInfo.fromRangeHighlighter(highlighter)?.takeIf { it.severity.myVal >= MINIMUM_SEVERITY }
 		}
 		
 		private inline fun runWithHighlighterIfValid(highlighter: RangeHighlighter, actionForImmediate: (HighlighterWithInfo) -> Unit, actionForAsync: (HighlighterWithInfo.Async) -> Unit) {
-			val info = getHighlightInfoIfValid(highlighter)
+			val info = highlighter.takeIf { it.isValid }?.let(::getFilteredHighlightInfo)
 			if (info != null) {
 				processHighlighterWithInfo(HighlighterWithInfo.from(highlighter, info), actionForImmediate, actionForAsync)
 			}
@@ -91,7 +76,7 @@ class LensMarkupModelListener private constructor(editor: Editor) : MarkupModelL
 		
 		/**
 		 * Attaches a new [LensMarkupModelListener] to the document model of the provided [TextEditor], and reports all existing inspection highlights to [EditorInlayLensManager].
-		 * 
+		 *
 		 * The [LensMarkupModelListener] will be disposed when either the [TextEditor] is disposed, or via [InspectionLensPluginDisposableService] when the plugin is unloaded.
 		 */
 		fun install(textEditor: TextEditor) {
@@ -103,7 +88,10 @@ class LensMarkupModelListener private constructor(editor: Editor) : MarkupModelL
 				
 				val listener = LensMarkupModelListener(editor)
 				markupModel.addMarkupModelListener(pluginLifetime.intersect(editorLifetime).createNestedDisposable(), listener)
-				listener.showAllValid(markupModel.allHighlighters)
+				
+				for (highlighter in markupModel.allHighlighters) {
+					listener.showIfValid(highlighter)
+				}
 			}
 		}
 	}

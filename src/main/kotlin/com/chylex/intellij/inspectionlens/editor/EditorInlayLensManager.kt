@@ -50,7 +50,7 @@ class EditorInlayLensManager private constructor(private val editor: Editor) {
 	
 	private val inlays = mutableMapOf<RangeHighlighter, Inlay<LensRenderer>>()
 	
-	fun show(highlighterWithInfo: HighlighterWithInfo) {
+	private fun show(highlighterWithInfo: HighlighterWithInfo) {
 		val (highlighter, info) = highlighterWithInfo
 		val currentInlay = inlays[highlighter]
 		if (currentInlay != null && currentInlay.isValid) {
@@ -73,8 +73,12 @@ class EditorInlayLensManager private constructor(private val editor: Editor) {
 		executeInInlayBatchMode(highlightersWithInfo.size) { highlightersWithInfo.forEach(::show) }
 	}
 	
-	fun hide(highlighter: RangeHighlighter) {
+	private fun hide(highlighter: RangeHighlighter) {
 		inlays.remove(highlighter)?.dispose()
+	}
+	
+	fun hideAll(highlighters: Collection<RangeHighlighter>) {
+		executeInInlayBatchMode(highlighters.size) { highlighters.forEach(::hide) }
 	}
 	
 	fun hideAll() {
