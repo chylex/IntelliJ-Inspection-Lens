@@ -54,7 +54,7 @@ enum class LensSeverity(baseColor: Color, lightThemeDarkening: Int, darkThemeBri
 		}
 		
 		/**
-		 * Returns the [LensSeverity] associated with the [HighlightSeverity], or [OTHER] if there no explicit mapping is found.
+		 * Returns the [LensSeverity] associated with the [HighlightSeverity], or [OTHER] if no explicit mapping is found.
 		 */
 		fun from(severity: HighlightSeverity): LensSeverity {
 			return mapping.getOrDefault(severity, OTHER)

@@ -10,7 +10,7 @@
     Shown inspection severities are <b>Errors</b>, <b>Warnings</b>, <b>Weak Warnings</b>, <b>Server Problems</b>, <b>Typos</b>, and other inspections from plugins or future IntelliJ versions that have a high enough severity level.
     Each severity has a different color, with support for both light and dark themes.
     <br><br>
-    The plugin is not customizable outside of the ability to disable/enable the plugin without restarting the IDE.
+    The plugin is not customizable outside the ability to disable/enable the plugin without restarting the IDE.
     If the defaults don't work for you, I would recommend either trying the <a href="https://plugins.jetbrains.com/plugin/17302-inlineerror">Inline Error</a> plugin which can be customized, or proposing your change in the <a href="https://github.com/chylex/IntelliJ-Inspection-Lens/issues">issue tracker</a>.
     <br><br>
     Inspired by <a href="https://marketplace.visualstudio.com/items?itemName=usernamehw.errorlens">Error Lens</a> for VS Code, and <a href="https://plugins.jetbrains.com/plugin/17302-inlineerror">Inline Error</a> for IntelliJ Platform.
