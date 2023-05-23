@@ -14,13 +14,13 @@ import com.intellij.openapi.util.Disposer
 import com.intellij.openapi.util.Key
 
 /**
- * Listens for inspection highlights and reports them to [EditorInlayLensManager].
+ * Listens for inspection highlights and reports them to [EditorLensManager].
  */
 internal class LensMarkupModelListener private constructor(editor: Editor) : MarkupModelListener {
-	private val lens = EditorInlayLensManager.getOrCreate(editor)
+	private val lensManager = EditorLensManager.getOrCreate(editor)
 	
-	private val showOnDispatchThread = DebouncingInvokeOnDispatchThread(lens::showAll)
-	private val hideOnDispatchThread = DebouncingInvokeOnDispatchThread(lens::hideAll)
+	private val showOnDispatchThread = DebouncingInvokeOnDispatchThread(lensManager::show)
+	private val hideOnDispatchThread = DebouncingInvokeOnDispatchThread(lensManager::hide)
 	
 	override fun afterAdded(highlighter: RangeHighlighterEx) {
 		showIfValid(highlighter)
@@ -81,7 +81,7 @@ internal class LensMarkupModelListener private constructor(editor: Editor) : Mar
 		}
 		
 		/**
-		 * Attaches a new [LensMarkupModelListener] to the [Editor], and reports all existing inspection highlights to [EditorInlayLensManager].
+		 * Attaches a new [LensMarkupModelListener] to the [Editor], and reports all existing inspection highlights to [EditorLensManager].
 		 */
 		fun register(editor: Editor, disposable: Disposable) {
 			if (editor.getUserData(EDITOR_KEY) != null) {

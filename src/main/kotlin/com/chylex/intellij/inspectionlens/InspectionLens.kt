@@ -1,6 +1,6 @@
 package com.chylex.intellij.inspectionlens
 
-import com.chylex.intellij.inspectionlens.editor.EditorInlayLensManager
+import com.chylex.intellij.inspectionlens.editor.EditorLensManager
 import com.chylex.intellij.inspectionlens.editor.LensMarkupModelListener
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.application.ApplicationManager
@@ -36,7 +36,7 @@ internal object InspectionLens {
 	 */
 	fun uninstall() {
 		forEachOpenEditor {
-			EditorInlayLensManager.remove(it.editor)
+			EditorLensManager.remove(it.editor)
 		}
 	}
 	
