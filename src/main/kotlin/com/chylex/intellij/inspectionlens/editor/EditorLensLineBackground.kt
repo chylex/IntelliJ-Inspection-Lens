@@ -38,7 +38,7 @@ internal value class EditorLensLineBackground(private val highlighter: RangeHigh
 	companion object {
 		fun show(editor: Editor, info: HighlightInfo): EditorLensLineBackground {
 			val startOffset = info.actualStartOffset
-			val endOffset = info.actualEndOffset
+			val endOffset = (info.actualEndOffset - 1).coerceAtLeast(startOffset)
 			
 			val severity = LensSeverity.from(info.severity)
 			val layer = getHighlightLayer(severity)
