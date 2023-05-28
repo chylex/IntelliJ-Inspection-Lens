@@ -8,4 +8,4 @@ Note: The plugin is not customizable outside the ability to disable/enable the p
 
 Inspired by [Error Lens](https://marketplace.visualstudio.com/items?itemName=usernamehw.errorlens) for Visual Studio Code, and [Inline Error](https://plugins.jetbrains.com/plugin/17302-inlineerror) for IntelliJ Platform.
 
-![Inspection Lens Screenshot](https://raw.githubusercontent.com/chylex/IntelliJ-Inspection-Lens/main/.github/readme/intellij.png)
+![Inspection Lens Screenshot](.github/readme/intellij.png)
