@@ -9,7 +9,7 @@ import com.intellij.openapi.fileEditor.TextEditor
 import com.intellij.openapi.project.ProjectManager
 import com.intellij.openapi.rd.createLifetime
 import com.intellij.openapi.rd.createNestedDisposable
-import com.jetbrains.rd.util.lifetime.intersect
+import com.jetbrains.rd.util.lifetime.Lifetime
 
 /**
  * Handles installation and uninstallation of plugin features in editors.
@@ -55,7 +55,7 @@ internal object InspectionLens {
 	private fun createEditorDisposable(textEditor: TextEditor): Disposable {
 		val pluginLifetime = ApplicationManager.getApplication().getService(InspectionLensPluginDisposableService::class.java).createLifetime()
 		val editorLifetime = textEditor.createLifetime()
-		return pluginLifetime.intersect(editorLifetime).createNestedDisposable()
+		return Lifetime.intersect(pluginLifetime, editorLifetime).createNestedDisposable("InspectionLensIntersectedLifetime")
 	}
 	
 	/**

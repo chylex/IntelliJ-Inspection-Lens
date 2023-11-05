@@ -15,7 +15,7 @@ repositories {
 }
 
 intellij {
-	version.set("2023.1")
+	version.set("233.11555.11-EAP-SNAPSHOT")
 	updateSinceUntilBuild.set(false)
 	
 	plugins.add("tanvd.grazi")
@@ -30,7 +30,7 @@ dependencies {
 }
 
 tasks.patchPluginXml {
-	sinceBuild.set("231")
+	sinceBuild.set("233.11361.10")
 }
 
 tasks.buildSearchableOptions {
