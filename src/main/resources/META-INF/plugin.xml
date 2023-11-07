@@ -50,10 +50,6 @@
   <depends>com.intellij.modules.platform</depends>
   <depends optional="true" config-file="compatibility/InspectionLens-Grazie.xml">tanvd.grazi</depends>
   
-  <extensions defaultExtensionNs="com.intellij">
-    <applicationService serviceImplementation="com.chylex.intellij.inspectionlens.InspectionLensPluginDisposableService" />
-  </extensions>
-  
   <applicationListeners>
     <listener class="com.chylex.intellij.inspectionlens.InspectionLensPluginListener" topic="com.intellij.ide.plugins.DynamicPluginListener" />
   </applicationListeners>
