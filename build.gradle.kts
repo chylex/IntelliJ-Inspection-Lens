@@ -4,7 +4,7 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
 	kotlin("jvm") version "1.8.0"
-	id("org.jetbrains.intellij") version "1.16.0"
+	id("org.jetbrains.intellij") version "1.17.0"
 }
 
 group = "com.chylex.intellij.inspectionlens"
@@ -15,7 +15,7 @@ repositories {
 }
 
 intellij {
-	version.set("233.11555.11-EAP-SNAPSHOT")
+	version.set("2023.3.3")
 	updateSinceUntilBuild.set(false)
 	
 	plugins.add("tanvd.grazi")
