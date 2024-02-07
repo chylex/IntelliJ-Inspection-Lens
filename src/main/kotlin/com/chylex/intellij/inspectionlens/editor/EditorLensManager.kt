@@ -30,6 +30,10 @@ class EditorLensManager private constructor(private val editor: Editor) {
 	private fun show(highlighterWithInfo: HighlighterWithInfo) {
 		val (highlighter, info) = highlighterWithInfo
 		
+		if (!highlighter.isValid) {
+			return
+		}
+		
 		val existingLens = lenses[highlighter]
 		if (existingLens != null) {
 			if (existingLens.update(info)) {
@@ -48,26 +52,36 @@ class EditorLensManager private constructor(private val editor: Editor) {
 		}
 	}
 	
-	fun show(highlightersWithInfo: Collection<HighlighterWithInfo>) {
-		executeInBatchMode(highlightersWithInfo.size) {
-			highlightersWithInfo.forEach(::show)
-		}
-	}
-	
 	private fun hide(highlighter: RangeHighlighter) {
 		lenses.remove(highlighter)?.hide()
-	}
-	
-	fun hide(highlighters: Collection<RangeHighlighter>) {
-		executeInBatchMode(highlighters.size) {
-			highlighters.forEach(::hide)
-		}
 	}
 	
 	fun hideAll() {
 		executeInBatchMode(lenses.size) {
 			lenses.values.forEach(EditorLens::hide)
 			lenses.clear()
+		}
+	}
+	
+	fun execute(commands: Collection<Command>) {
+		executeInBatchMode(commands.size) {
+			commands.forEach { it.apply(this) }
+		}
+	}
+	
+	sealed interface Command {
+		fun apply(lensManager: EditorLensManager)
+		
+		class Show(private val highlighter: HighlighterWithInfo) : Command {
+			override fun apply(lensManager: EditorLensManager) {
+				lensManager.show(highlighter)
+			}
+		}
+		
+		class Hide(private val highlighter: RangeHighlighter) : Command {
+			override fun apply(lensManager: EditorLensManager) {
+				lensManager.hide(highlighter)
+			}
 		}
 	}
 	

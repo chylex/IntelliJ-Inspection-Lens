@@ -1,6 +1,5 @@
 package com.chylex.intellij.inspectionlens.editor
 
-import com.chylex.intellij.inspectionlens.utils.DebouncingInvokeOnDispatchThread
 import com.intellij.codeInsight.daemon.impl.HighlightInfo
 import com.intellij.lang.annotation.HighlightSeverity
 import com.intellij.openapi.Disposable
@@ -17,10 +16,7 @@ import com.intellij.openapi.util.Key
  * Listens for inspection highlights and reports them to [EditorLensManager].
  */
 internal class LensMarkupModelListener private constructor(editor: Editor) : MarkupModelListener {
-	private val lensManager = EditorLensManager.getOrCreate(editor)
-	
-	private val showOnDispatchThread = DebouncingInvokeOnDispatchThread(lensManager::show)
-	private val hideOnDispatchThread = DebouncingInvokeOnDispatchThread(lensManager::hide)
+	private val lensManagerDispatcher = EditorLensManagerDispatcher(EditorLensManager.getOrCreate(editor))
 	
 	override fun afterAdded(highlighter: RangeHighlighterEx) {
 		showIfValid(highlighter)
@@ -32,18 +28,18 @@ internal class LensMarkupModelListener private constructor(editor: Editor) : Mar
 	
 	override fun beforeRemoved(highlighter: RangeHighlighterEx) {
 		if (getFilteredHighlightInfo(highlighter) != null) {
-			hideOnDispatchThread.enqueue(highlighter)
+			lensManagerDispatcher.hide(highlighter)
 		}
 	}
 	
 	private fun showIfValid(highlighter: RangeHighlighter) {
-		runWithHighlighterIfValid(highlighter, showOnDispatchThread::enqueue, ::showAsynchronously)
+		runWithHighlighterIfValid(highlighter, lensManagerDispatcher::show, ::showAsynchronously)
 	}
 	
 	private fun showAsynchronously(highlighterWithInfo: HighlighterWithInfo.Async) {
 		highlighterWithInfo.requestDescription {
 			if (highlighterWithInfo.highlighter.isValid && highlighterWithInfo.hasDescription) {
-				showOnDispatchThread.enqueue(highlighterWithInfo)
+				lensManagerDispatcher.show(highlighterWithInfo)
 			}
 		}
 	}
