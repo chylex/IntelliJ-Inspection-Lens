@@ -17,6 +17,10 @@
   ]]></description>
   
   <change-notes><![CDATA[
+    <b>Version 1.3.2</b>
+    <ul>
+      <li>Fixed inspections randomly not disappearing.</li>
+    </ul>
     <b>Version 1.3.1</b>
     <ul>
       <li>Updated minimum version to IntelliJ 2023.3 due to breaking API changes.</li>
