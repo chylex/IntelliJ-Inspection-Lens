@@ -39,13 +39,11 @@ class LensRenderer(info: HighlightInfo) : HintRenderer(null) {
 	
 	private companion object {
 		private fun getValidDescriptionText(text: String?): String {
-			return if (text.isNullOrBlank()) " " else addMissingPeriod(convertHtmlToText(text))
+			return if (text.isNullOrBlank()) " " else addMissingPeriod(unescapeHtmlEntities(text))
 		}
 		
-		private fun convertHtmlToText(potentialHtml: String): String {
-			return potentialHtml
-				.ifContains('<') { StringUtil.stripHtml(it, " ") }
-				.ifContains('&', StringUtil::unescapeXmlEntities)
+		private fun unescapeHtmlEntities(potentialHtml: String): String {
+			return potentialHtml.ifContains('&', StringUtil::unescapeXmlEntities)
 		}
 		
 		private fun addMissingPeriod(text: String): String {
