@@ -1,8 +1,8 @@
 package com.chylex.intellij.inspectionlens.editor
 
 import com.chylex.intellij.inspectionlens.InspectionLensRefresher
+import com.chylex.intellij.inspectionlens.compatibility.SpellCheckerSupport
 import com.intellij.lang.annotation.HighlightSeverity
-import com.intellij.spellchecker.SpellCheckerSeveritiesProvider
 import com.intellij.ui.ColorUtil
 import com.intellij.ui.ColorUtil.toAlpha
 import com.intellij.ui.JBColor
@@ -43,8 +43,11 @@ enum class LensSeverity(baseColor: Color, lightThemeDarkening: Int, darkThemeBri
 			HighlightSeverity.WARNING                         to WARNING,
 			HighlightSeverity.WEAK_WARNING                    to WEAK_WARNING,
 			HighlightSeverity.GENERIC_SERVER_ERROR_OR_WARNING to SERVER_PROBLEM,
-			SpellCheckerSeveritiesProvider.TYPO               to TYPO,
 		))
+		
+		init {
+			SpellCheckerSupport.load()
+		}
 		
 		/**
 		 * Registers a mapping from a [HighlightSeverity] to a [LensSeverity], and refreshes all open editors.
