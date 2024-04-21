@@ -17,6 +17,11 @@
   ]]></description>
   
   <change-notes><![CDATA[
+    <b>Version 1.3.3</b>
+    <ul>
+      <li>Partially reverted fix for inspections that include HTML in their description due to breaking inspections with angled brackets.</li>
+      <li>Fixed plugin not working when installed on JetBrains Gateway Client.</li>
+    </ul>
     <b>Version 1.3.2</b>
     <ul>
       <li>Fixed inspections randomly not disappearing.</li>
