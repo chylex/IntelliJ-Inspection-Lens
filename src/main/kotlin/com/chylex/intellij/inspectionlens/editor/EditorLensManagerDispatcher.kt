@@ -15,6 +15,10 @@ class EditorLensManagerDispatcher(private val lensManager: EditorLensManager) {
 		enqueue(EditorLensManager.Command.Hide(highlighter))
 	}
 	
+	fun hideAll() {
+		enqueue(EditorLensManager.Command.HideAll)
+	}
+	
 	private fun enqueue(item: EditorLensManager.Command) {
 		synchronized(this) {
 			queuedItems.add(item)

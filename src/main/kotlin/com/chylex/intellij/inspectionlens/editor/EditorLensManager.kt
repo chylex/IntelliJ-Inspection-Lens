@@ -83,6 +83,12 @@ class EditorLensManager private constructor(private val editor: Editor) {
 				lensManager.hide(highlighter)
 			}
 		}
+		
+		object HideAll : Command {
+			override fun apply(lensManager: EditorLensManager) {
+				lensManager.hideAll()
+			}
+		}
 	}
 	
 	/**

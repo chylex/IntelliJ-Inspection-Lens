@@ -1,8 +1,9 @@
 package com.chylex.intellij.inspectionlens.editor
 
+import com.chylex.intellij.inspectionlens.settings.LensSettingsState
 import com.intellij.codeInsight.daemon.impl.HighlightInfo
-import com.intellij.lang.annotation.HighlightSeverity
 import com.intellij.openapi.Disposable
+import com.intellij.openapi.components.service
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.editor.ex.MarkupModelEx
 import com.intellij.openapi.editor.ex.RangeHighlighterEx
@@ -48,12 +49,16 @@ internal class LensMarkupModelListener private constructor(editor: Editor) : Mar
 		highlighters.forEach(::showIfValid)
 	}
 	
+	private fun hideAll() {
+		lensManagerDispatcher.hideAll()
+	}
+	
 	companion object {
 		private val EDITOR_KEY = Key<LensMarkupModelListener>(LensMarkupModelListener::class.java.name)
-		private val MINIMUM_SEVERITY = HighlightSeverity.TEXT_ATTRIBUTES.myVal + 1
+		private val SETTINGS_SERVICE = service<LensSettingsState>()
 		
 		private fun getFilteredHighlightInfo(highlighter: RangeHighlighter): HighlightInfo? {
-			return HighlightInfo.fromRangeHighlighter(highlighter)?.takeIf { it.severity.myVal >= MINIMUM_SEVERITY }
+			return HighlightInfo.fromRangeHighlighter(highlighter)?.takeIf { SETTINGS_SERVICE.severityFilter.test(it.severity) }
 		}
 		
 		private inline fun runWithHighlighterIfValid(highlighter: RangeHighlighter, actionForImmediate: (HighlighterWithInfo) -> Unit, actionForAsync: (HighlighterWithInfo.Async) -> Unit) {
@@ -101,6 +106,7 @@ internal class LensMarkupModelListener private constructor(editor: Editor) : Mar
 			val listener = editor.getUserData(EDITOR_KEY) ?: return
 			val markupModel = getMarkupModel(editor) ?: return
 			
+			listener.hideAll()
 			listener.showAllValid(markupModel.allHighlighters)
 		}
 	}

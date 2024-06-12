@@ -4,14 +4,9 @@
   <vendor url="https://chylex.com">chylex</vendor>
   
   <description><![CDATA[
-    Shows errors, warnings, and other inspection highlights inline.
+    Displays errors, warnings, and other inspections inline. Highlights the background of lines with inspections. Supports light and dark themes out of the box.
     <br><br>
-    After installing the plugin, inspection descriptions will appear after the ends of lines, and the lines will be highlighted with a background color.
-    Shown inspection severities are <b>Errors</b>, <b>Warnings</b>, <b>Weak Warnings</b>, <b>Server Problems</b>, <b>Grammar Errors</b>, <b>Typos</b>, and other inspections from plugins or future IntelliJ versions that have a high enough severity level.
-    Each severity has a different color, with support for both light and dark themes.
-    <br><br>
-    Note: The plugin is not customizable outside the ability to disable/enable the plugin without restarting the IDE.
-    If the defaults don't work for you, I recommend trying the <a href="https://plugins.jetbrains.com/plugin/17302-inlineerror">Inline Error</a> plugin which can be customized, building your own version of Inspection Lens, or proposing your change in the <a href="https://github.com/chylex/IntelliJ-Inspection-Lens/issues">issue tracker</a>.
+    By default, the plugin shows <b>Errors</b>, <b>Warnings</b>, <b>Weak Warnings</b>, <b>Server Problems</b>, <b>Grammar Errors</b>, <b>Typos</b>, and other inspections with a high enough severity level. Configure visible severities in <b>Settings | Tools | Inspection Lens</a>.
     <br><br>
     Inspired by <a href="https://marketplace.visualstudio.com/items?itemName=usernamehw.errorlens">Error Lens</a> for VS Code, and <a href="https://plugins.jetbrains.com/plugin/17302-inlineerror">Inline Error</a> for IntelliJ Platform.
   ]]></description>
@@ -62,6 +57,14 @@
   
   <depends>com.intellij.modules.platform</depends>
   <depends optional="true" config-file="compatibility/InspectionLens-Grazie.xml">tanvd.grazi</depends>
+  
+  <extensions defaultExtensionNs="com.intellij">
+    <applicationService serviceImplementation="com.chylex.intellij.inspectionlens.settings.LensSettingsState" />
+    <applicationConfigurable id="com.chylex.intellij.inspectionlens.settings.LensApplicationConfigurable"
+                             instance="com.chylex.intellij.inspectionlens.settings.LensApplicationConfigurable"
+                             displayName="Inspection Lens"
+                             parentId="tools" />
+  </extensions>
   
   <applicationListeners>
     <listener class="com.chylex.intellij.inspectionlens.InspectionLensPluginListener" topic="com.intellij.ide.plugins.DynamicPluginListener" />
