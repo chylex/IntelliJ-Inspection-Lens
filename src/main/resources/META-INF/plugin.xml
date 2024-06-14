@@ -12,6 +12,10 @@
   ]]></description>
   
   <change-notes><![CDATA[
+    <b>Version 1.4</b>
+    <ul>
+      <li>Added configuration of visible severities to <b>Settings | Tools | Inspection Lens</b>.</li>
+    </ul>
     <b>Version 1.3.3</b>
     <ul>
       <li>Partially reverted fix for inspections that include HTML in their description due to breaking inspections with angled brackets.</li>
