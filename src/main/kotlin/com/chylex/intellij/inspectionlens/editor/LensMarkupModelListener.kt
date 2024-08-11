@@ -17,6 +17,7 @@ import com.intellij.openapi.util.Key
  * Listens for inspection highlights and reports them to [EditorLensManager].
  */
 internal class LensMarkupModelListener private constructor(editor: Editor) : MarkupModelListener {
+	private val settingsService = service<LensSettingsState>()
 	private val lensManagerDispatcher = EditorLensManagerDispatcher(EditorLensManager.getOrCreate(editor))
 	
 	override fun afterAdded(highlighter: RangeHighlighterEx) {
@@ -53,20 +54,19 @@ internal class LensMarkupModelListener private constructor(editor: Editor) : Mar
 		lensManagerDispatcher.hideAll()
 	}
 	
+	private fun getFilteredHighlightInfo(highlighter: RangeHighlighter): HighlightInfo? {
+		return HighlightInfo.fromRangeHighlighter(highlighter)?.takeIf { settingsService.severityFilter.test(it.severity) }
+	}
+	
+	private inline fun runWithHighlighterIfValid(highlighter: RangeHighlighter, actionForImmediate: (HighlighterWithInfo) -> Unit, actionForAsync: (HighlighterWithInfo.Async) -> Unit) {
+		val info = highlighter.takeIf { it.isValid }?.let(::getFilteredHighlightInfo)
+		if (info != null) {
+			processHighlighterWithInfo(HighlighterWithInfo.from(highlighter, info), actionForImmediate, actionForAsync)
+		}
+	}
+	
 	companion object {
 		private val EDITOR_KEY = Key<LensMarkupModelListener>(LensMarkupModelListener::class.java.name)
-		private val SETTINGS_SERVICE = service<LensSettingsState>()
-		
-		private fun getFilteredHighlightInfo(highlighter: RangeHighlighter): HighlightInfo? {
-			return HighlightInfo.fromRangeHighlighter(highlighter)?.takeIf { SETTINGS_SERVICE.severityFilter.test(it.severity) }
-		}
-		
-		private inline fun runWithHighlighterIfValid(highlighter: RangeHighlighter, actionForImmediate: (HighlighterWithInfo) -> Unit, actionForAsync: (HighlighterWithInfo.Async) -> Unit) {
-			val info = highlighter.takeIf { it.isValid }?.let(::getFilteredHighlightInfo)
-			if (info != null) {
-				processHighlighterWithInfo(HighlighterWithInfo.from(highlighter, info), actionForImmediate, actionForAsync)
-			}
-		}
 		
 		private inline fun processHighlighterWithInfo(highlighterWithInfo: HighlighterWithInfo, actionForImmediate: (HighlighterWithInfo) -> Unit, actionForAsync: (HighlighterWithInfo.Async) -> Unit) {
 			if (highlighterWithInfo is HighlighterWithInfo.Async) {

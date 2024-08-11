@@ -25,10 +25,6 @@ import java.awt.Cursor
 class LensApplicationConfigurable : BoundConfigurable("Inspection Lens"), ConfigurableWithId {
 	companion object {
 		const val ID = "InspectionLens"
-		
-		private fun getTextAttributes(registrar: SeverityRegistrar, severity: HighlightSeverity): TextAttributes? {
-			return registrar.getHighlightInfoTypeBySeverity(severity).attributesKey.defaultAttributes
-		}
 	}
 	
 	private data class DisplayedSeverity(
@@ -42,7 +38,7 @@ class LensApplicationConfigurable : BoundConfigurable("Inspection Lens"), Config
 		) : this(
 			id = severity.name,
 			severity = StoredSeverity(severity),
-			textAttributes = getTextAttributes(registrar, severity)
+			textAttributes = registrar.getHighlightInfoTypeBySeverity(severity).attributesKey.defaultAttributes
 		)
 	}
 	
