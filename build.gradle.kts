@@ -15,10 +15,11 @@ repositories {
 }
 
 intellij {
-	version.set("2023.3.3")
+	version.set("2024.2")
 	updateSinceUntilBuild.set(false)
 	
 	plugins.add("tanvd.grazi")
+	plugins.add("com.intellij.classic.ui:242.20224.159")
 }
 
 kotlin {
@@ -30,7 +31,7 @@ dependencies {
 }
 
 tasks.patchPluginXml {
-	sinceBuild.set("233.11361.10")
+	sinceBuild.set("242")
 }
 
 tasks.buildSearchableOptions {
