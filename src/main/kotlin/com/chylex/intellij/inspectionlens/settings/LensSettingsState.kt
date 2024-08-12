@@ -20,12 +20,16 @@ class LensSettingsState : SimplePersistentStateComponent<LensSettingsState.State
 		val hiddenSeverities by map<String, StoredSeverity>()
 		
 		var showUnknownSeverities by property(true)
+		var useUiFont by property(false)
 	}
 	
 	@get:Synchronized
 	@set:Synchronized
 	var severityFilter = createSeverityFilter()
 		private set
+	
+	val useUiFont
+		get() = state.useUiFont
 	
 	override fun loadState(state: State) {
 		super.loadState(state)

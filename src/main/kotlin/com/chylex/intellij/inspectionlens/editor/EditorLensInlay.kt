@@ -1,6 +1,8 @@
 package com.chylex.intellij.inspectionlens.editor
 
+import com.chylex.intellij.inspectionlens.settings.LensSettingsState
 import com.intellij.codeInsight.daemon.impl.HighlightInfo
+import com.intellij.openapi.components.service
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.editor.Inlay
 import com.intellij.openapi.editor.InlayProperties
@@ -29,7 +31,7 @@ internal value class EditorLensInlay(private val inlay: Inlay<LensRenderer>) {
 			val offset = getInlayHintOffset(info)
 			val priority = getInlayHintPriority(editor, info)
 			
-			val renderer = LensRenderer(info)
+			val renderer = LensRenderer(info, !service<LensSettingsState>().useUiFont)
 			val properties = InlayProperties().relatesToPrecedingText(true).disableSoftWrapping(true).priority(priority)
 			
 			return editor.inlayModel.addAfterLineEndElement(offset, properties, renderer)

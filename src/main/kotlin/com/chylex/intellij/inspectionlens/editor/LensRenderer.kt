@@ -24,7 +24,7 @@ import javax.swing.SwingUtilities
 /**
  * Renders the text of an inspection lens.
  */
-class LensRenderer(private var info: HighlightInfo) : HintRenderer(null), InputHandler {
+class LensRenderer(private var info: HighlightInfo, private val useEditorFont: Boolean) : HintRenderer(null), InputHandler {
 	private lateinit var severity: LensSeverity
 	private lateinit var inlay: Inlay<*>
 	private var hovered = false
@@ -63,7 +63,7 @@ class LensRenderer(private var info: HighlightInfo) : HintRenderer(null), InputH
 	}
 	
 	override fun useEditorFont(): Boolean {
-		return true
+		return useEditorFont
 	}
 	
 	override fun mouseMoved(event: MouseEvent, translated: Point) {
