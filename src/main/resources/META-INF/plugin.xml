@@ -12,6 +12,10 @@
   ]]></description>
   
   <change-notes><![CDATA[
+    <b>Version 1.4.1</b>
+    <ul>
+      <li>Fixed warnings in usage of IntelliJ SDK.</li>
+    </ul>
     <b>Version 1.4</b>
     <ul>
       <li>Added configuration of visible severities to <b>Settings | Tools | Inspection Lens</b>.</li>
