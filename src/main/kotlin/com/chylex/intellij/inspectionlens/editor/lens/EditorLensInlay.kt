@@ -36,7 +36,9 @@ internal value class EditorLensInlay(private val inlay: Inlay<LensRenderer>) {
 				.disableSoftWrapping(true)
 				.priority(priority)
 			
-			return editor.inlayModel.addAfterLineEndElement(offset, properties, renderer)?.let(::EditorLensInlay)
+			return editor.inlayModel.addAfterLineEndElement(offset, properties, renderer)
+				?.also(renderer::setInlay)
+				?.let(::EditorLensInlay)
 		}
 		
 		/**
