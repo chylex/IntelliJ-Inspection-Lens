@@ -89,6 +89,12 @@ class LensApplicationConfigurable : BoundConfigurable("Inspection Lens"), Config
 					checkBox("Other").bindSelected(settings::showUnknownSeverities)
 				}
 			}
+			
+			group("Appearance") {
+				row {
+					checkBox("Use editor font").bindSelected(settings::useEditorFont)
+				}
+			}
 		}
 	}
 	

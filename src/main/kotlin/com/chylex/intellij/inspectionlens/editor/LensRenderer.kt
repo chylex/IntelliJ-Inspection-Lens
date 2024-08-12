@@ -1,5 +1,6 @@
 package com.chylex.intellij.inspectionlens.editor
 
+import com.chylex.intellij.inspectionlens.settings.LensSettingsState
 import com.intellij.codeInsight.daemon.impl.HighlightInfo
 import com.intellij.codeInsight.daemon.impl.HintRenderer
 import com.intellij.openapi.editor.Editor
@@ -12,7 +13,8 @@ import java.awt.Rectangle
 /**
  * Renders the text of an inspection lens.
  */
-class LensRenderer(info: HighlightInfo) : HintRenderer(null) {
+class LensRenderer(info: HighlightInfo, settings: LensSettingsState) : HintRenderer(null) {
+	private val useEditorFont = settings.useEditorFont
 	private lateinit var severity: LensSeverity
 	
 	init {
@@ -34,7 +36,7 @@ class LensRenderer(info: HighlightInfo) : HintRenderer(null) {
 	}
 	
 	override fun useEditorFont(): Boolean {
-		return true
+		return useEditorFont
 	}
 	
 	private companion object {

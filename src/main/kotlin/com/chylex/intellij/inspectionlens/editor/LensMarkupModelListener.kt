@@ -17,7 +17,7 @@ import com.intellij.openapi.util.Key
  * Listens for inspection highlights and reports them to [EditorLensManager].
  */
 internal class LensMarkupModelListener private constructor(editor: Editor) : MarkupModelListener {
-	private val settingsService = service<LensSettingsState>()
+	private val settings = service<LensSettingsState>()
 	private val lensManagerDispatcher = EditorLensManagerDispatcher(EditorLensManager.getOrCreate(editor))
 	
 	override fun afterAdded(highlighter: RangeHighlighterEx) {
@@ -55,7 +55,7 @@ internal class LensMarkupModelListener private constructor(editor: Editor) : Mar
 	}
 	
 	private fun getFilteredHighlightInfo(highlighter: RangeHighlighter): HighlightInfo? {
-		return HighlightInfo.fromRangeHighlighter(highlighter)?.takeIf { settingsService.severityFilter.test(it.severity) }
+		return HighlightInfo.fromRangeHighlighter(highlighter)?.takeIf { settings.severityFilter.test(it.severity) }
 	}
 	
 	private inline fun runWithHighlighterIfValid(highlighter: RangeHighlighter, actionForImmediate: (HighlighterWithInfo) -> Unit, actionForAsync: (HighlighterWithInfo.Async) -> Unit) {

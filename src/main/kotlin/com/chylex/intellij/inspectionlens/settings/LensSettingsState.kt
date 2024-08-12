@@ -20,12 +20,16 @@ class LensSettingsState : SimplePersistentStateComponent<LensSettingsState.State
 		val hiddenSeverities by map<String, StoredSeverity>()
 		
 		var showUnknownSeverities by property(true)
+		var useEditorFont by property(true)
 	}
 	
 	@get:Synchronized
 	@set:Synchronized
 	var severityFilter = createSeverityFilter()
 		private set
+	
+	val useEditorFont
+		get() = state.useEditorFont
 	
 	override fun loadState(state: State) {
 		super.loadState(state)

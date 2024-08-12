@@ -1,5 +1,7 @@
 package com.chylex.intellij.inspectionlens.editor
 
+import com.chylex.intellij.inspectionlens.settings.LensSettingsState
+import com.intellij.openapi.components.service
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.editor.markup.RangeHighlighter
 import com.intellij.openapi.util.Key
@@ -26,6 +28,7 @@ class EditorLensManager private constructor(private val editor: Editor) {
 	}
 	
 	private val lenses = IdentityHashMap<RangeHighlighter, EditorLens>()
+	private val settings = service<LensSettingsState>()
 	
 	private fun show(highlighterWithInfo: HighlighterWithInfo) {
 		val (highlighter, info) = highlighterWithInfo
@@ -36,14 +39,14 @@ class EditorLensManager private constructor(private val editor: Editor) {
 		
 		val existingLens = lenses[highlighter]
 		if (existingLens != null) {
-			if (existingLens.update(info)) {
+			if (existingLens.update(info, settings)) {
 				return
 			}
 			
 			existingLens.hide()
 		}
 		
-		val newLens = EditorLens.show(editor, info)
+		val newLens = EditorLens.show(editor, info, settings)
 		if (newLens != null) {
 			lenses[highlighter] = newLens
 		}
