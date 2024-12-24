@@ -1,12 +1,12 @@
 package com.chylex.intellij.inspectionlens.compatibility
 
-import com.chylex.intellij.inspectionlens.editor.LensSeverity
+import com.chylex.intellij.inspectionlens.editor.lens.LensSeverity
 import com.intellij.lang.annotation.HighlightSeverity
 import com.intellij.openapi.diagnostic.logger
 import com.intellij.profile.codeInspection.InspectionProfileManager
 import com.intellij.spellchecker.SpellCheckerSeveritiesProvider
 
-object SpellCheckerSupport {
+internal object SpellCheckerSupport {
 	private val log = logger<SpellCheckerSupport>()
 	
 	fun load() {

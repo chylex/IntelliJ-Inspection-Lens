@@ -3,7 +3,7 @@ package com.chylex.intellij.inspectionlens.editor
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.editor.markup.RangeHighlighter
 
-class EditorLensManagerDispatcher(private val lensManager: EditorLensManager) {
+internal class EditorLensManagerDispatcher(private val lensManager: EditorLensManager) {
 	private var queuedItems = mutableListOf<EditorLensManager.Command>()
 	private var isEnqueued = false
 	

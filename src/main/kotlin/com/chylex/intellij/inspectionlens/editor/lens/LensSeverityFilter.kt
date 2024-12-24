@@ -1,4 +1,4 @@
-package com.chylex.intellij.inspectionlens.editor
+package com.chylex.intellij.inspectionlens.editor.lens
 
 import com.intellij.codeInsight.daemon.impl.SeverityRegistrar
 import com.intellij.lang.annotation.HighlightSeverity

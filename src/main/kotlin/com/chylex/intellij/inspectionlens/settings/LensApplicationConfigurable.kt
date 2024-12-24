@@ -1,6 +1,6 @@
 package com.chylex.intellij.inspectionlens.settings
 
-import com.chylex.intellij.inspectionlens.editor.LensSeverityFilter
+import com.chylex.intellij.inspectionlens.editor.lens.LensSeverityFilter
 import com.intellij.codeInsight.daemon.impl.SeverityRegistrar
 import com.intellij.lang.annotation.HighlightSeverity
 import com.intellij.openapi.components.service

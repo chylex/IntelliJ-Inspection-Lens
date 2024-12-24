@@ -1,32 +1,16 @@
 package com.chylex.intellij.inspectionlens.editor
 
+import com.chylex.intellij.inspectionlens.editor.lens.EditorLens
 import com.chylex.intellij.inspectionlens.settings.LensSettingsState
 import com.intellij.openapi.components.service
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.editor.markup.RangeHighlighter
-import com.intellij.openapi.util.Key
 import java.util.IdentityHashMap
 
 /**
  * Manages visible inspection lenses for an [Editor].
  */
-class EditorLensManager private constructor(private val editor: Editor) {
-	companion object {
-		private val EDITOR_KEY = Key<EditorLensManager>(EditorLensManager::class.java.name)
-		
-		fun getOrCreate(editor: Editor): EditorLensManager {
-			return editor.getUserData(EDITOR_KEY) ?: EditorLensManager(editor).also { editor.putUserData(EDITOR_KEY, it) }
-		}
-		
-		fun remove(editor: Editor) {
-			val manager = editor.getUserData(EDITOR_KEY)
-			if (manager != null) {
-				manager.hideAll()
-				editor.putUserData(EDITOR_KEY, null)
-			}
-		}
-	}
-	
+internal class EditorLensManager(private val editor: Editor) {
 	private val lenses = IdentityHashMap<RangeHighlighter, EditorLens>()
 	private val settings = service<LensSettingsState>()
 	

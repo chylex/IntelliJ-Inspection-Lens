@@ -1,4 +1,4 @@
-package com.chylex.intellij.inspectionlens.editor
+package com.chylex.intellij.inspectionlens.editor.lens
 
 import com.intellij.openapi.editor.markup.UnmodifiableTextAttributes
 import com.intellij.ui.JBColor

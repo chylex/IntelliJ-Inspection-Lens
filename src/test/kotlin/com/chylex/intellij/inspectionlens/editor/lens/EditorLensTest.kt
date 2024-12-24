@@ -1,6 +1,5 @@
-package com.chylex.intellij.inspectionlens
+package com.chylex.intellij.inspectionlens.editor.lens
 
-import com.chylex.intellij.inspectionlens.editor.EditorLensInlay
 import com.intellij.lang.annotation.HighlightSeverity
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Nested
@@ -48,7 +47,7 @@ class EditorLensTest {
 		}
 		
 		/**
-		 * If any of these change, re-evaluate [EditorLensInlay.MAXIMUM_SEVERITY] and the priority calculations.
+		 * If any of these changes, re-evaluate [EditorLensInlay.MAXIMUM_SEVERITY] and the priority calculations.
 		 */
 		@Nested
 		inner class IdeaHighlightSeverityAssumptions {

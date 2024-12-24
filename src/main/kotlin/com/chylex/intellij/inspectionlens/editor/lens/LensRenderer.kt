@@ -1,4 +1,4 @@
-package com.chylex.intellij.inspectionlens.editor
+package com.chylex.intellij.inspectionlens.editor.lens
 
 import com.chylex.intellij.inspectionlens.settings.LensSettingsState
 import com.intellij.codeInsight.daemon.impl.HighlightInfo

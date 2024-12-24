@@ -1,6 +1,6 @@
-package com.chylex.intellij.inspectionlens.editor
+package com.chylex.intellij.inspectionlens.editor.lens
 
-import com.chylex.intellij.inspectionlens.InspectionLensRefresher
+import com.chylex.intellij.inspectionlens.InspectionLens
 import com.chylex.intellij.inspectionlens.compatibility.SpellCheckerSupport
 import com.intellij.lang.annotation.HighlightSeverity
 import com.intellij.ui.ColorUtil
@@ -54,7 +54,7 @@ enum class LensSeverity(baseColor: Color, lightThemeDarkening: Int, darkThemeBri
 		 */
 		internal fun registerMapping(severity: HighlightSeverity, lensSeverity: LensSeverity) {
 			if (mapping.put(severity, lensSeverity) != lensSeverity) {
-				InspectionLensRefresher.scheduleRefresh()
+				InspectionLens.scheduleRefresh()
 			}
 		}
 		

@@ -1,7 +1,7 @@
 package com.chylex.intellij.inspectionlens.settings
 
-import com.chylex.intellij.inspectionlens.InspectionLensRefresher
-import com.chylex.intellij.inspectionlens.editor.LensSeverityFilter
+import com.chylex.intellij.inspectionlens.InspectionLens
+import com.chylex.intellij.inspectionlens.editor.lens.LensSeverityFilter
 import com.intellij.openapi.components.BaseState
 import com.intellij.openapi.components.SettingsCategory
 import com.intellij.openapi.components.SimplePersistentStateComponent
@@ -38,7 +38,7 @@ class LensSettingsState : SimplePersistentStateComponent<LensSettingsState.State
 	
 	fun update() {
 		severityFilter = createSeverityFilter()
-		InspectionLensRefresher.scheduleRefresh()
+		InspectionLens.scheduleRefresh()
 	}
 	
 	private fun createSeverityFilter(): LensSeverityFilter {

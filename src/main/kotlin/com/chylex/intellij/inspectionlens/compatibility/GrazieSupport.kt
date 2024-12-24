@@ -1,6 +1,6 @@
 package com.chylex.intellij.inspectionlens.compatibility
 
-import com.chylex.intellij.inspectionlens.editor.LensSeverity
+import com.chylex.intellij.inspectionlens.editor.lens.LensSeverity
 import com.intellij.grazie.ide.TextProblemSeverities
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.startup.ProjectActivity

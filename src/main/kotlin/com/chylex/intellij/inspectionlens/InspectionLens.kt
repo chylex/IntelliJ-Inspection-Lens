@@ -1,15 +1,11 @@
 package com.chylex.intellij.inspectionlens
 
-import com.chylex.intellij.inspectionlens.editor.EditorLensManager
-import com.chylex.intellij.inspectionlens.editor.LensMarkupModelListener
-import com.intellij.openapi.Disposable
+import com.chylex.intellij.inspectionlens.editor.EditorLensFeatures
 import com.intellij.openapi.application.ApplicationManager
+import com.intellij.openapi.components.service
 import com.intellij.openapi.fileEditor.FileEditorManager
 import com.intellij.openapi.fileEditor.TextEditor
 import com.intellij.openapi.project.ProjectManager
-import com.intellij.openapi.rd.createLifetime
-import com.intellij.openapi.rd.createNestedDisposable
-import com.jetbrains.rd.util.lifetime.Lifetime
 
 /**
  * Handles installation and uninstallation of plugin features in editors.
@@ -21,7 +17,7 @@ internal object InspectionLens {
 	 * Installs lenses into [editor].
 	 */
 	fun install(editor: TextEditor) {
-		LensMarkupModelListener.register(editor.editor, createEditorDisposable(editor))
+		EditorLensFeatures.install(editor.editor, service<InspectionLensPluginDisposableService>().intersect(editor))
 	}
 	
 	/**
@@ -32,30 +28,19 @@ internal object InspectionLens {
 	}
 	
 	/**
-	 * Uninstalls lenses from all open editors.
-	 */
-	fun uninstall() {
-		forEachOpenEditor {
-			EditorLensManager.remove(it.editor)
-		}
-	}
-	
-	/**
 	 * Refreshes lenses in all open editors.
 	 */
-	fun refresh() {
+	private fun refresh() {
 		forEachOpenEditor {
-			LensMarkupModelListener.refresh(it.editor)
+			EditorLensFeatures.refresh(it.editor)
 		}
 	}
 	
 	/**
-	 * Creates a [Disposable] that will be disposed when either the [TextEditor] is disposed or the plugin is unloaded.
+	 * Schedules a refresh of lenses in all open editors.
 	 */
-	private fun createEditorDisposable(textEditor: TextEditor): Disposable {
-		val pluginLifetime = ApplicationManager.getApplication().getService(InspectionLensPluginDisposableService::class.java).createLifetime()
-		val editorLifetime = textEditor.createLifetime()
-		return Lifetime.intersect(pluginLifetime, editorLifetime).createNestedDisposable("InspectionLensIntersectedLifetime")
+	fun scheduleRefresh() {
+		Refresh.schedule()
 	}
 	
 	/**
@@ -67,6 +52,28 @@ internal object InspectionLens {
 		for (project in projectManager.openProjects.filterNot { it.isDisposed }) {
 			for (editor in FileEditorManager.getInstance(project).allEditors.filterIsInstance<TextEditor>()) {
 				action(editor)
+			}
+		}
+	}
+	
+	private object Refresh {
+		private var needsRefresh = false
+		
+		fun schedule() {
+			synchronized(this) {
+				if (!needsRefresh) {
+					needsRefresh = true
+					ApplicationManager.getApplication().invokeLater(this::run)
+				}
+			}
+		}
+		
+		private fun run() {
+			synchronized(this) {
+				if (needsRefresh) {
+					needsRefresh = false
+					refresh()
+				}
 			}
 		}
 	}
