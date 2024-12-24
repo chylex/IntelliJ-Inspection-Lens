@@ -2,6 +2,7 @@ package com.chylex.intellij.inspectionlens.editor
 
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.editor.Editor
+import com.intellij.openapi.editor.ex.FoldingModelEx
 import com.intellij.openapi.editor.ex.MarkupModelEx
 import com.intellij.openapi.editor.impl.DocumentMarkupModel
 import com.intellij.openapi.util.Disposer
@@ -13,6 +14,7 @@ import com.intellij.openapi.util.Key
 internal class EditorLensFeatures private constructor(
 	editor: Editor,
 	private val markupModel: MarkupModelEx,
+	foldingModel: FoldingModelEx?,
 	disposable: Disposable
 ) {
 	private val lensManager = EditorLensManager(editor)
@@ -22,6 +24,8 @@ internal class EditorLensFeatures private constructor(
 	init {
 		markupModel.addMarkupModelListener(disposable, markupModelListener)
 		markupModelListener.showAllValid(markupModel.allHighlighters)
+		
+		foldingModel?.addListener(LensFoldingModelListener(lensManager), disposable)
 	}
 	
 	private fun refresh() {
@@ -38,7 +42,8 @@ internal class EditorLensFeatures private constructor(
 			}
 			
 			val markupModel = DocumentMarkupModel.forDocument(editor.document, editor.project, false) as? MarkupModelEx ?: return
-			val features = EditorLensFeatures(editor, markupModel, disposable)
+			val foldingModel = editor.foldingModel as? FoldingModelEx
+			val features = EditorLensFeatures(editor, markupModel, foldingModel, disposable)
 			
 			editor.putUserData(EDITOR_KEY, features)
 			Disposer.register(disposable) { editor.putUserData(EDITOR_KEY, null) }

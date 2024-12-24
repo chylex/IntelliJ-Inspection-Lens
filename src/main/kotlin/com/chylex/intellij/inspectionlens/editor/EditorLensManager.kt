@@ -56,6 +56,10 @@ internal class EditorLensManager(private val editor: Editor) {
 		}
 	}
 	
+	fun onFoldRegionsChanged() {
+		lenses.values.forEach(EditorLens::onFoldRegionsChanged)
+	}
+	
 	sealed interface Command {
 		fun apply(lensManager: EditorLensManager)
 		
