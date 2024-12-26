@@ -8,10 +8,21 @@
     <br><br>
     By default, the plugin shows <b>Errors</b>, <b>Warnings</b>, <b>Weak Warnings</b>, <b>Server Problems</b>, <b>Grammar Errors</b>, <b>Typos</b>, and other inspections with a high enough severity level. Configure visible severities in <b>Settings | Tools | Inspection Lens</a>.
     <br><br>
+    Left-click an inspection to show quick fixes. Middle-click an inspection to navigate to the relevant code in the editor. 
+    <br><br>
     Inspired by <a href="https://marketplace.visualstudio.com/items?itemName=usernamehw.errorlens">Error Lens</a> for VS Code, and <a href="https://plugins.jetbrains.com/plugin/17302-inlineerror">Inline Error</a> for IntelliJ Platform.
   ]]></description>
   
   <change-notes><![CDATA[
+    <b>Version 1.5</b>
+    <ul>
+      <li>Added possibility to left-click an inspection to show quick fixes.</li>
+      <li>Added possibility to middle-click an inspection to navigate to relevant code in the editor.</li>
+      <li>Added option to use UI font instead of editor font.</li>
+      <li>Long inspection descriptions are now truncated to 120 characters.</li>
+      <li>Improved descriptions of Kotlin compiler inspections.</li>
+      <li>Fixed visual artifacts in Rendered Doc comments.</li>
+    </ul>
     <b>Version 1.4.1</b>
     <ul>
       <li>Fixed warnings in usage of IntelliJ SDK.</li>

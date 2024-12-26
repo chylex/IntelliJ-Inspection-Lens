@@ -8,7 +8,7 @@ plugins {
 }
 
 group = "com.chylex.intellij.inspectionlens"
-version = "1.4.1"
+version = "1.5"
 
 repositories {
 	mavenCentral()

@@ -4,6 +4,8 @@ Displays errors, warnings, and other inspections inline. Highlights the backgrou
 
 By default, the plugin shows **Errors**, **Warnings**, **Weak Warnings**, **Server Problems**, **Grammar Errors**, **Typos**, and other inspections with a high enough severity level. Configure visible severities in **Settings | Tools | Inspection Lens**.
 
+Left-click an inspection to show quick fixes. Middle-click an inspection to navigate to the relevant code in the editor.
+
 Inspired by [Error Lens](https://marketplace.visualstudio.com/items?itemName=usernamehw.errorlens) for Visual Studio Code, and [Inline Error](https://plugins.jetbrains.com/plugin/17302-inlineerror) for IntelliJ Platform.
 
 ![Inspection Lens Screenshot](.github/readme/intellij.png)
