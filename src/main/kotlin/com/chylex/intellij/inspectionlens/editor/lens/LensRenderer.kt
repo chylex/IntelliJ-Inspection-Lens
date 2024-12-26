@@ -18,6 +18,7 @@ import java.awt.Graphics2D
 import java.awt.Point
 import java.awt.Rectangle
 import java.awt.event.MouseEvent
+import java.util.regex.Pattern
 import javax.swing.SwingUtilities
 
 /**
@@ -133,20 +134,32 @@ class LensRenderer(private var info: HighlightInfo, settings: LensSettingsState)
 		private const val HOVER_PADDING_LEFT = TEXT_HORIZONTAL_PADDING - 2
 		private const val HOVER_PADDING_RIGHT = HOVER_PADDING_LEFT + EXTRA_RIGHT_SIDE_PADDING
 		
+		/**
+		 * Kotlin compiler inspections have an `[UPPERCASE_TAG]` at the beginning.
+		 */
+		private val UPPERCASE_TAG_REGEX = Pattern.compile("^\\[[A-Z_]+] ")
+		
 		private fun getValidDescriptionText(text: String?): String {
-			return if (text.isNullOrBlank()) " " else addMissingPeriod(unescapeHtmlEntities(text))
+			return if (text.isNullOrBlank()) " " else addMissingPeriod(unescapeHtmlEntities(stripUppercaseTag(text)))
 		}
 		
-		private fun unescapeHtmlEntities(potentialHtml: String): String {
-			return potentialHtml.ifContains('&', StringUtil::unescapeXmlEntities)
+		private fun stripUppercaseTag(text: String): String {
+			if (text.startsWith('[')) {
+				val matcher = UPPERCASE_TAG_REGEX.matcher(text)
+				if (matcher.find()) {
+					return text.substring(matcher.end())
+				}
+			}
+			
+			return text
+		}
+		
+		private fun unescapeHtmlEntities(text: String): String {
+			return if (text.contains('&')) StringUtil.unescapeXmlEntities(text) else text
 		}
 		
 		private fun addMissingPeriod(text: String): String {
 			return if (text.endsWith('.')) text else "$text."
-		}
-		
-		private inline fun String.ifContains(charToTest: Char, action: (String) -> String): String {
-			return if (this.contains(charToTest)) action(this) else this
 		}
 		
 		private fun fixBaselineForTextRendering(rect: Rectangle) {
