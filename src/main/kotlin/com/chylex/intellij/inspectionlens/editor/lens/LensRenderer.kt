@@ -28,6 +28,7 @@ class LensRenderer(private var info: HighlightInfo, settings: LensSettingsState)
 	private val useEditorFont = settings.useEditorFont
 	private lateinit var inlay: Inlay<*>
 	private lateinit var attributes: LensSeverityTextAttributes
+	private var extraRightPadding = 0
 	private var hovered = false
 	
 	init {
@@ -41,9 +42,11 @@ class LensRenderer(private var info: HighlightInfo, settings: LensSettingsState)
 	
 	fun setPropertiesFrom(info: HighlightInfo) {
 		this.info = info
+		val description = getValidDescriptionText(info.description)
 		
-		text = getValidDescriptionText(info.description)
+		text = description
 		attributes = LensSeverity.from(info.severity).textAttributes
+		extraRightPadding = if (description.lastOrNull() == '.') 2 else 0
 	}
 	
 	override fun paint(inlay: Inlay<*>, g: Graphics, r: Rectangle, textAttributes: TextAttributes) {
@@ -64,7 +67,7 @@ class LensRenderer(private var info: HighlightInfo, settings: LensSettingsState)
 		val font = editor.colorsScheme.getFont(EditorFontType.PLAIN)
 		val x = r.x + TEXT_HORIZONTAL_PADDING
 		val y = r.y + editor.ascent + 1
-		val w = inlay.widthInPixels - UNDERLINE_WIDTH_REDUCTION
+		val w = inlay.widthInPixels - UNDERLINE_WIDTH_REDUCTION - extraRightPadding
 		val h = editor.descent
 		
 		g.color = attributes.foregroundColor
@@ -113,9 +116,9 @@ class LensRenderer(private var info: HighlightInfo, settings: LensSettingsState)
 	}
 	
 	private fun isHoveringText(point: Point): Boolean {
-		return point.x >= HOVER_PADDING_LEFT
+		return point.x >= HOVER_HORIZONTAL_PADDING
 			&& point.y >= 4
-			&& point.x < inlay.widthInPixels - HOVER_PADDING_RIGHT
+			&& point.x < inlay.widthInPixels - HOVER_HORIZONTAL_PADDING - extraRightPadding
 			&& point.y < inlay.heightInPixels - 1
 	}
 	
@@ -124,15 +127,10 @@ class LensRenderer(private var info: HighlightInfo, settings: LensSettingsState)
 		 * [HintRenderer.paintHint] renders padding around text, but not around effects.
 		 */
 		private const val TEXT_HORIZONTAL_PADDING = 7
+		private const val HOVER_HORIZONTAL_PADDING = TEXT_HORIZONTAL_PADDING - 2
+		private const val UNDERLINE_WIDTH_REDUCTION = (TEXT_HORIZONTAL_PADDING * 2) - 1
 		
-		/**
-		 * The last character is always a period, which does not take up the full width, so the underline and the hover region are shrunk by an additional pixel.
-		 */
-		private const val EXTRA_RIGHT_SIDE_PADDING = 1
-		
-		private const val UNDERLINE_WIDTH_REDUCTION = (TEXT_HORIZONTAL_PADDING * 2) + EXTRA_RIGHT_SIDE_PADDING
-		private const val HOVER_PADDING_LEFT = TEXT_HORIZONTAL_PADDING - 2
-		private const val HOVER_PADDING_RIGHT = HOVER_PADDING_LEFT + EXTRA_RIGHT_SIDE_PADDING
+		private const val MAX_DESCRIPTION_LENGTH = 120
 		
 		/**
 		 * Kotlin compiler inspections have an `[UPPERCASE_TAG]` at the beginning.
@@ -140,7 +138,7 @@ class LensRenderer(private var info: HighlightInfo, settings: LensSettingsState)
 		private val UPPERCASE_TAG_REGEX = Pattern.compile("^\\[[A-Z_]+] ")
 		
 		private fun getValidDescriptionText(text: String?): String {
-			return if (text.isNullOrBlank()) " " else addMissingPeriod(unescapeHtmlEntities(stripUppercaseTag(text)))
+			return if (text.isNullOrBlank()) " " else addEllipsisOrMissingPeriod(unescapeHtmlEntities(stripUppercaseTag(text)))
 		}
 		
 		private fun stripUppercaseTag(text: String): String {
@@ -158,8 +156,12 @@ class LensRenderer(private var info: HighlightInfo, settings: LensSettingsState)
 			return if (text.contains('&')) StringUtil.unescapeXmlEntities(text) else text
 		}
 		
-		private fun addMissingPeriod(text: String): String {
-			return if (text.endsWith('.')) text else "$text."
+		private fun addEllipsisOrMissingPeriod(text: String): String {
+			return when {
+				text.length > MAX_DESCRIPTION_LENGTH -> text.take(MAX_DESCRIPTION_LENGTH).trimEnd { it.isWhitespace() || it == '.' } + "…"
+				!text.endsWith('.')                  -> "$text."
+				else                                 -> text
+			}
 		}
 		
 		private fun fixBaselineForTextRendering(rect: Rectangle) {
