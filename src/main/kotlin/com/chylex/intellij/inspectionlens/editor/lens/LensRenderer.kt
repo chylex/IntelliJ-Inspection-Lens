@@ -6,6 +6,7 @@ import com.intellij.codeInsight.daemon.impl.HintRenderer
 import com.intellij.codeInsight.hints.presentation.InputHandler
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.editor.Inlay
+import com.intellij.openapi.editor.ScrollType
 import com.intellij.openapi.editor.colors.EditorFontType
 import com.intellij.openapi.editor.ex.EditorEx
 import com.intellij.openapi.editor.impl.EditorImpl
@@ -107,12 +108,20 @@ class LensRenderer(private var info: HighlightInfo, settings: LensSettingsState)
 	}
 	
 	override fun mousePressed(event: MouseEvent, translated: Point) {
-		if (!SwingUtilities.isLeftMouseButton(event) || !isHoveringText(translated)) {
+		if (!isHoveringText(translated)) {
 			return
 		}
 		
-		event.consume()
-		IntentionsPopup.showAt(inlay.editor, info.actualStartOffset)
+		if (SwingUtilities.isLeftMouseButton(event) || SwingUtilities.isMiddleMouseButton(event)) {
+			event.consume()
+			
+			val editor = inlay.editor
+			moveToOffset(editor, info.actualStartOffset)
+			
+			if (SwingUtilities.isLeftMouseButton(event)) {
+				IntentionsPopup.show(editor)
+			}
+		}
 	}
 	
 	private fun isHoveringText(point: Point): Boolean {
@@ -166,6 +175,11 @@ class LensRenderer(private var info: HighlightInfo, settings: LensSettingsState)
 		
 		private fun fixBaselineForTextRendering(rect: Rectangle) {
 			rect.y += 1
+		}
+		
+		private fun moveToOffset(editor: Editor, offset: Int) {
+			editor.caretModel.moveToOffset(offset)
+			editor.scrollingModel.scrollToCaret(ScrollType.MAKE_VISIBLE)
 		}
 	}
 }
