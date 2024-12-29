@@ -92,4 +92,10 @@
   <projectListeners>
     <listener class="com.chylex.intellij.inspectionlens.InspectionLensFileOpenedListener" topic="com.intellij.openapi.fileEditor.FileOpenedSyncListener" />
   </projectListeners>
+  
+  <actions>
+    <action id="com.chylex.intellij.inspectionlens.debug.ShowColorEditorAction" class="com.chylex.intellij.inspectionlens.debug.ShowColorEditorAction" text="Inspection Lens - Show Color Editor">
+      <add-to-group group-id="ToolsMenu" anchor="last" />
+    </action>
+  </actions>
 </idea-plugin>

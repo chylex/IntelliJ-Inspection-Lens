@@ -28,7 +28,7 @@ import javax.swing.SwingUtilities
 class LensRenderer(private var info: HighlightInfo, settings: LensSettingsState) : HintRenderer(null), InputHandler {
 	private val useEditorFont = settings.useEditorFont
 	private lateinit var inlay: Inlay<*>
-	private lateinit var attributes: LensSeverityTextAttributes
+	private lateinit var severity: LensSeverity
 	private var extraRightPadding = 0
 	private var hovered = false
 	
@@ -46,7 +46,7 @@ class LensRenderer(private var info: HighlightInfo, settings: LensSettingsState)
 		val description = getValidDescriptionText(info.description)
 		
 		text = description
-		attributes = LensSeverity.from(info.severity).textAttributes
+		severity = LensSeverity.from(info.severity)
 		extraRightPadding = if (description.lastOrNull() == '.') 2 else 0
 	}
 	
@@ -71,12 +71,12 @@ class LensRenderer(private var info: HighlightInfo, settings: LensSettingsState)
 		val w = inlay.widthInPixels - UNDERLINE_WIDTH_REDUCTION - extraRightPadding
 		val h = editor.descent
 		
-		g.color = attributes.foregroundColor
+		g.color = getTextAttributes(editor).foregroundColor
 		EffectPainter.LINE_UNDERSCORE.paint(g as Graphics2D, x, y, w, h, font)
 	}
 	
 	override fun getTextAttributes(editor: Editor): TextAttributes {
-		return attributes
+		return severity.getTextAttributes(ColorMode.getFromEditor(editor))
 	}
 	
 	override fun useEditorFont(): Boolean {

@@ -2,19 +2,20 @@ package com.chylex.intellij.inspectionlens.editor.lens
 
 import com.chylex.intellij.inspectionlens.InspectionLens
 import com.chylex.intellij.inspectionlens.compatibility.SpellCheckerSupport
+import com.chylex.intellij.inspectionlens.editor.lens.ColorMode.Companion.createColorAttributes
 import com.intellij.lang.annotation.HighlightSeverity
 import com.intellij.ui.ColorUtil
 import com.intellij.ui.ColorUtil.toAlpha
-import com.intellij.ui.JBColor
 import java.awt.Color
 import java.awt.Font
 import java.util.Collections
+import java.util.EnumMap
 
 /**
  * Determines properties of inspection lenses based on severity.
  */
 @Suppress("UseJBColor", "InspectionUsingGrayColors")
-enum class LensSeverity(baseColor: Color, lightThemeDarkening: Int, darkThemeBrightening: Int) {
+enum class LensSeverity(private val baseColor: Color, private val lightThemeDarkening: Int, private val darkThemeBrightening: Int) {
 	ERROR          (Color(158,  41,  39), lightThemeDarkening = 2, darkThemeBrightening = 4),
 	WARNING        (Color(190, 145,  23), lightThemeDarkening = 5, darkThemeBrightening = 1),
 	WEAK_WARNING   (Color(117, 109,  86), lightThemeDarkening = 4, darkThemeBrightening = 4),
@@ -23,18 +24,38 @@ enum class LensSeverity(baseColor: Color, lightThemeDarkening: Int, darkThemeBri
 	TYPO           (Color( 73, 156,  84), lightThemeDarkening = 4, darkThemeBrightening = 1),
 	OTHER          (Color(128, 128, 128), lightThemeDarkening = 2, darkThemeBrightening = 2);
 	
-	val textAttributes: LensSeverityTextAttributes
-	val lineAttributes: LensSeverityTextAttributes
+	private lateinit var textAttributes: EnumMap<ColorMode, LensSeverityTextAttributes>
+	private lateinit var lineAttributes: EnumMap<ColorMode, LensSeverityTextAttributes>
 	
 	init {
-		val lightThemeColor = ColorUtil.saturate(ColorUtil.darker(baseColor, lightThemeDarkening), 1)
-		val darkThemeColor = ColorUtil.desaturate(ColorUtil.brighter(baseColor, darkThemeBrightening), 2)
+		refreshColors()
+	}
+	
+	internal fun refreshColors() {
+		val lightThemeTextColor: Color
+		val darkThemeTextColor: Color
 		
-		val textColor = JBColor(lightThemeColor, darkThemeColor)
-		val lineColor = JBColor(toAlpha(lightThemeColor, 10), toAlpha(darkThemeColor, 13))
+		if (ColorGenerator.useGenerator) {
+			ColorGenerator.generate(baseColor).let { (light, dark) -> lightThemeTextColor = light; darkThemeTextColor = dark }
+		}
+		else {
+			lightThemeTextColor = ColorUtil.saturate(ColorUtil.darker(baseColor, lightThemeDarkening), 1)
+			darkThemeTextColor = ColorUtil.desaturate(ColorUtil.brighter(baseColor, darkThemeBrightening), 2)
+		}
 		
-		textAttributes = LensSeverityTextAttributes(foregroundColor = textColor, fontStyle = Font.ITALIC)
-		lineAttributes = LensSeverityTextAttributes(backgroundColor = lineColor)
+		val lightThemeLineColor = toAlpha(lightThemeTextColor, 10)
+		val darkThemeLineColor = toAlpha(darkThemeTextColor, 13)
+		
+		textAttributes = createColorAttributes(lightThemeTextColor, darkThemeTextColor) { LensSeverityTextAttributes(foregroundColor = it, fontStyle = Font.ITALIC) }
+		lineAttributes = createColorAttributes(lightThemeLineColor, darkThemeLineColor) { LensSeverityTextAttributes(backgroundColor = it) }
+	}
+	
+	internal fun getTextAttributes(colorMode: ColorMode): LensSeverityTextAttributes {
+		return textAttributes.getValue(colorMode)
+	}
+	
+	internal fun getLineAttributes(colorMode: ColorMode): LensSeverityTextAttributes {
+		return lineAttributes.getValue(colorMode)
 	}
 	
 	companion object {

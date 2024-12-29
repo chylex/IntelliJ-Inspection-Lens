@@ -43,7 +43,7 @@ internal value class EditorLensLineBackground(private val highlighter: RangeHigh
 			return if (editor.foldingModel.let { it.isOffsetCollapsed(startOffset) || it.isOffsetCollapsed(endOffset) })
 				null
 			else
-				severity.lineAttributes
+				severity.getLineAttributes(ColorMode.getFromEditor(editor))
 		}
 	}
 }
