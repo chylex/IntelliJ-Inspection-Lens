@@ -16,6 +16,7 @@ import com.intellij.ui.paint.EffectPainter
 import java.awt.Cursor
 import java.awt.Graphics
 import java.awt.Graphics2D
+import java.awt.MouseInfo
 import java.awt.Point
 import java.awt.Rectangle
 import java.awt.event.MouseEvent
@@ -54,7 +55,7 @@ class LensRenderer(private var info: HighlightInfo, settings: LensSettingsState)
 		fixBaselineForTextRendering(r)
 		super.paint(inlay, g, r, textAttributes)
 		
-		if (hovered) {
+		if (hovered && isHoveringText()) {
 			paintHoverEffect(inlay, g, r)
 		}
 	}
@@ -122,6 +123,16 @@ class LensRenderer(private var info: HighlightInfo, settings: LensSettingsState)
 				IntentionsPopup.show(editor)
 			}
 		}
+	}
+	
+	private fun isHoveringText(): Boolean {
+		val bounds = inlay.bounds ?: return false
+		val translatedPoint = MouseInfo.getPointerInfo().location.apply {
+			SwingUtilities.convertPointFromScreen(this, inlay.editor.contentComponent)
+			translate(-bounds.x, -bounds.y)
+		}
+		
+		return isHoveringText(translatedPoint)
 	}
 	
 	private fun isHoveringText(point: Point): Boolean {
