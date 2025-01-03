@@ -67,7 +67,7 @@ class LensRenderer(private var info: HighlightInfo, settings: LensSettingsState)
 		
 		val font = editor.colorsScheme.getFont(EditorFontType.PLAIN)
 		val x = r.x + TEXT_HORIZONTAL_PADDING
-		val y = r.y + editor.ascent + 1
+		val y = r.y + editor.ascent
 		val w = inlay.widthInPixels - UNDERLINE_WIDTH_REDUCTION - extraRightPadding
 		val h = editor.descent
 		
