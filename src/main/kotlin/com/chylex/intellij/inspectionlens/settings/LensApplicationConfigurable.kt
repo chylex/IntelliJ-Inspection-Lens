@@ -13,11 +13,13 @@ import com.intellij.openapi.ui.DialogPanel
 import com.intellij.openapi.util.Disposer
 import com.intellij.ui.DisabledTraversalPolicy
 import com.intellij.ui.EditorTextFieldCellRenderer.SimpleRendererComponent
+import com.intellij.ui.SimpleListCellRenderer
 import com.intellij.ui.components.JBCheckBox
 import com.intellij.ui.dsl.builder.Cell
 import com.intellij.ui.dsl.builder.RightGap
 import com.intellij.ui.dsl.builder.Row
 import com.intellij.ui.dsl.builder.RowLayout
+import com.intellij.ui.dsl.builder.bindItem
 import com.intellij.ui.dsl.builder.bindSelected
 import com.intellij.ui.dsl.builder.panel
 import java.awt.Cursor
@@ -74,6 +76,20 @@ class LensApplicationConfigurable : BoundConfigurable("Inspection Lens"), Config
 		val settings = settingsService.state
 		
 		return panel {
+			group("Appearance") {
+				row {
+					checkBox("Use editor font").bindSelected(settings::useEditorFont)
+				}
+			}
+			
+			group("Behavior") {
+				row("Hover mode:") {
+					val items = LensHoverMode.values().toList()
+					val renderer = SimpleListCellRenderer.create("", LensHoverMode::description)
+					comboBox(items, renderer).bindItem(settings::lensHoverMode) { settings.lensHoverMode = it ?: LensHoverMode.DEFAULT }
+				}
+			}
+			
 			group("Shown Severities") {
 				for ((id, severity, textAttributes) in allSeverities) {
 					row {
@@ -87,12 +103,6 @@ class LensApplicationConfigurable : BoundConfigurable("Inspection Lens"), Config
 				
 				row {
 					checkBox("Other").bindSelected(settings::showUnknownSeverities)
-				}
-			}
-			
-			group("Appearance") {
-				row {
-					checkBox("Use editor font").bindSelected(settings::useEditorFont)
 				}
 			}
 		}

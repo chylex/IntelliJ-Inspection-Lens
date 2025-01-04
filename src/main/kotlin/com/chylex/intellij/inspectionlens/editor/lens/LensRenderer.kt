@@ -1,5 +1,6 @@
 package com.chylex.intellij.inspectionlens.editor.lens
 
+import com.chylex.intellij.inspectionlens.settings.LensHoverMode
 import com.chylex.intellij.inspectionlens.settings.LensSettingsState
 import com.intellij.codeInsight.daemon.impl.HighlightInfo
 import com.intellij.codeInsight.daemon.impl.HintRenderer
@@ -26,8 +27,7 @@ import javax.swing.SwingUtilities
 /**
  * Renders the text of an inspection lens.
  */
-class LensRenderer(private var info: HighlightInfo, settings: LensSettingsState) : HintRenderer(null), InputHandler {
-	private val useEditorFont = settings.useEditorFont
+class LensRenderer(private var info: HighlightInfo, private val settings: LensSettingsState) : HintRenderer(null), InputHandler {
 	private lateinit var inlay: Inlay<*>
 	private lateinit var attributes: LensSeverityTextAttributes
 	private var extraRightPadding = 0
@@ -81,7 +81,7 @@ class LensRenderer(private var info: HighlightInfo, settings: LensSettingsState)
 	}
 	
 	override fun useEditorFont(): Boolean {
-		return useEditorFont
+		return settings.useEditorFont
 	}
 	
 	override fun mouseMoved(event: MouseEvent, translated: Point) {
@@ -93,6 +93,10 @@ class LensRenderer(private var info: HighlightInfo, settings: LensSettingsState)
 	}
 	
 	private fun setHovered(hovered: Boolean) {
+		if (hovered && settings.lensHoverMode == LensHoverMode.DISABLED) {
+			return
+		}
+		
 		if (this.hovered == hovered) {
 			return
 		}
@@ -109,17 +113,18 @@ class LensRenderer(private var info: HighlightInfo, settings: LensSettingsState)
 	}
 	
 	override fun mousePressed(event: MouseEvent, translated: Point) {
-		if (!isHoveringText(translated)) {
+		val hoverMode = settings.lensHoverMode
+		if (hoverMode == LensHoverMode.DISABLED || !isHoveringText(translated)) {
 			return
 		}
 		
-		if (SwingUtilities.isLeftMouseButton(event) || SwingUtilities.isMiddleMouseButton(event)) {
+		if (event.button.let { it == MouseEvent.BUTTON1 || it == MouseEvent.BUTTON2 }) {
 			event.consume()
 			
 			val editor = inlay.editor
 			moveToOffset(editor, info.actualStartOffset)
 			
-			if (SwingUtilities.isLeftMouseButton(event)) {
+			if ((event.button == MouseEvent.BUTTON1) xor (hoverMode != LensHoverMode.DEFAULT)) {
 				IntentionsPopup.show(editor)
 			}
 		}

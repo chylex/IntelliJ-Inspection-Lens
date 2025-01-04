@@ -21,6 +21,7 @@ class LensSettingsState : SimplePersistentStateComponent<LensSettingsState.State
 		
 		var showUnknownSeverities by property(true)
 		var useEditorFont by property(true)
+		var lensHoverMode by enum(LensHoverMode.DEFAULT)
 	}
 	
 	@get:Synchronized
@@ -30,6 +31,9 @@ class LensSettingsState : SimplePersistentStateComponent<LensSettingsState.State
 	
 	val useEditorFont
 		get() = state.useEditorFont
+	
+	val lensHoverMode
+		get() = state.lensHoverMode
 	
 	override fun loadState(state: State) {
 		super.loadState(state)
