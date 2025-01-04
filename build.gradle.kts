@@ -1,10 +1,8 @@
 @file:Suppress("ConvertLambdaToReference")
 
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
-
 plugins {
-	kotlin("jvm") version "1.8.0"
-	id("org.jetbrains.intellij") version "1.17.0"
+	kotlin("jvm")
+	id("org.jetbrains.intellij.platform")
 }
 
 group = "com.chylex.intellij.inspectionlens"
@@ -12,37 +10,40 @@ version = "1.5.1"
 
 repositories {
 	mavenCentral()
+	
+	intellijPlatform {
+		defaultRepositories()
+	}
 }
 
-intellij {
-	version.set("2023.3.3")
-	updateSinceUntilBuild.set(false)
+dependencies {
+	intellijPlatform {
+		intellijIdeaUltimate("2023.3.3")
+		bundledPlugin("tanvd.grazi")
+	}
 	
-	plugins.add("tanvd.grazi")
+	testImplementation("org.junit.jupiter:junit-jupiter:5.9.2")
+}
+
+intellijPlatform {
+	pluginConfiguration {
+		ideaVersion {
+			sinceBuild.set("233.11361.10")
+			untilBuild.set(provider { null })
+		}
+	}
 }
 
 kotlin {
 	jvmToolchain(17)
-}
-
-dependencies {
-	testImplementation("org.junit.jupiter:junit-jupiter:5.9.2")
-}
-
-tasks.patchPluginXml {
-	sinceBuild.set("233.11361.10")
-}
-
-tasks.buildSearchableOptions {
-	enabled = false
+	
+	compilerOptions {
+		freeCompilerArgs = listOf(
+			"-X" + "jvm-default=all"
+		)
+	}
 }
 
 tasks.test {
 	useJUnitPlatform()
-}
-
-tasks.withType<KotlinCompile> {
-	kotlinOptions.freeCompilerArgs = listOf(
-		"-Xjvm-default=all"
-	)
 }

@@ -3,4 +3,5 @@
 !/.idea/runConfigurations
 
 /.gradle/
+/.intellijPlatform/
 /build/
