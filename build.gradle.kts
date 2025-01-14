@@ -20,6 +20,9 @@ dependencies {
 	intellijPlatform {
 		intellijIdeaUltimate("2023.3.3")
 		bundledPlugin("tanvd.grazi")
+		
+		// https://plugins.jetbrains.com/plugin/12175-grazie-lite/versions
+		// plugin("tanvd.grazi", "233.13135.14")
 	}
 	
 	testImplementation("org.junit.jupiter:junit-jupiter:5.9.2")
@@ -44,6 +47,11 @@ kotlin {
 	}
 }
 
-tasks.test {
+tasks.withType<Test>().configureEach {
 	useJUnitPlatform()
+}
+
+val testSnapshot by intellijPlatformTesting.testIde.registering {
+	version = "LATEST-EAP-SNAPSHOT"
+	useInstaller = false
 }
