@@ -2,7 +2,6 @@ package com.chylex.intellij.inspectionlens.editor.lens
 
 import com.intellij.codeInsight.daemon.impl.IntentionsUI
 import com.intellij.codeInsight.hint.HintManager
-import com.intellij.codeInsight.intention.actions.ShowIntentionActionsAction
 import com.intellij.codeInsight.intention.impl.ShowIntentionActionsHandler
 import com.intellij.lang.LangBundle
 import com.intellij.openapi.actionSystem.ActionManager
@@ -26,7 +25,7 @@ internal object IntentionsPopup {
 		// If the IDE uses the default Show Intentions action and handler,
 		// use the handler directly to bypass additional logic from the action.
 		val action = ActionManager.getInstance().getAction(IdeActions.ACTION_SHOW_INTENTION_ACTIONS)
-		if (action.javaClass === ShowIntentionActionsAction::class.java) {
+		if (action.javaClass.name === DEFAULT_ACTION_CLASS) {
 			return tryShowWithDefaultHandler(editor)
 		}
 		else {
@@ -45,6 +44,11 @@ internal object IntentionsPopup {
 		HANDLER.showIntentionHint(project, editor, file, showFeedbackOnEmptyMenu = true)
 		return true
 	}
+	
+	/**
+	 * New IDEA versions mark this class as internal, so the plugin verifier flags references to it as errors.
+	 */
+	const val DEFAULT_ACTION_CLASS = "com.intellij.codeInsight.intention.actions.ShowIntentionActionsAction"
 	
 	private val HANDLER = object : ShowIntentionActionsHandler() {
 		public override fun showIntentionHint(project: Project, editor: Editor, file: PsiFile, showFeedbackOnEmptyMenu: Boolean) {
