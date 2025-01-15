@@ -40,6 +40,17 @@ class LensSettingsState : SimplePersistentStateComponent<LensSettingsState.State
 		update()
 	}
 	
+	fun resetState() {
+		val default = State()
+		
+		state.hiddenSeverities.apply { clear(); putAll(default.hiddenSeverities) }
+		state.showUnknownSeverities = default.showUnknownSeverities
+		state.useEditorFont = default.useEditorFont
+		state.lensHoverMode = default.lensHoverMode
+		
+		update()
+	}
+	
 	fun update() {
 		severityFilter = createSeverityFilter()
 		InspectionLens.scheduleRefresh()

@@ -10,6 +10,7 @@ import com.intellij.openapi.editor.markup.TextAttributes
 import com.intellij.openapi.options.BoundConfigurable
 import com.intellij.openapi.options.ConfigurableWithId
 import com.intellij.openapi.ui.DialogPanel
+import com.intellij.openapi.ui.MessageDialogBuilder
 import com.intellij.openapi.util.Disposer
 import com.intellij.ui.DisabledTraversalPolicy
 import com.intellij.ui.EditorTextFieldCellRenderer.SimpleRendererComponent
@@ -75,7 +76,9 @@ class LensApplicationConfigurable : BoundConfigurable("Inspection Lens"), Config
 	override fun createPanel(): DialogPanel {
 		val settings = settingsService.state
 		
-		return panel {
+		lateinit var panel: DialogPanel
+		
+		panel = panel {
 			group("Appearance") {
 				row {
 					checkBox("Use editor font").bindSelected(settings::useEditorFont)
@@ -84,7 +87,7 @@ class LensApplicationConfigurable : BoundConfigurable("Inspection Lens"), Config
 			
 			group("Behavior") {
 				row("Hover mode:") {
-					val items = LensHoverMode.values().toList()
+					val items = LensHoverMode.entries
 					val renderer = SimpleListCellRenderer.create("", LensHoverMode::description)
 					comboBox(items, renderer).bindItem(settings::lensHoverMode) { settings.lensHoverMode = it ?: LensHoverMode.DEFAULT }
 				}
@@ -105,7 +108,20 @@ class LensApplicationConfigurable : BoundConfigurable("Inspection Lens"), Config
 					checkBox("Other").bindSelected(settings::showUnknownSeverities)
 				}
 			}
+			
+			group("Actions") {
+				row {
+					button("Reset to Default") {
+						if (MessageDialogBuilder.yesNo("Reset to Default", "Are you sure you want to reset settings to default?").ask(panel)) {
+							settingsService.resetState()
+							reset()
+						}
+					}
+				}
+			}
 		}
+		
+		return panel
 	}
 	
 	private fun <K, V> Cell<JBCheckBox>.bindSelectedToNotIn(collection: MutableMap<K, V>, key: K, value: V): Cell<JBCheckBox> {
