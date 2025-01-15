@@ -14,6 +14,11 @@
   ]]></description>
   
   <change-notes><![CDATA[
+    <b>Version 1.5.2</b>
+    <ul>
+      <li>Added option to change maximum description length.</li>
+      <li>Added button to <b>Settings | Tools | Inspection Lens</b> that resets all settings to default.</li>
+    </ul>
     <b>Version 1.5.1</b>
     <ul>
       <li>Added option to change the behavior of clicking on inspections.</li>
