@@ -20,6 +20,7 @@ import com.intellij.ui.dsl.builder.Cell
 import com.intellij.ui.dsl.builder.RightGap
 import com.intellij.ui.dsl.builder.Row
 import com.intellij.ui.dsl.builder.RowLayout
+import com.intellij.ui.dsl.builder.bindIntText
 import com.intellij.ui.dsl.builder.bindItem
 import com.intellij.ui.dsl.builder.bindSelected
 import com.intellij.ui.dsl.builder.panel
@@ -82,6 +83,9 @@ class LensApplicationConfigurable : BoundConfigurable("Inspection Lens"), Config
 			group("Appearance") {
 				row {
 					checkBox("Use editor font").bindSelected(settings::useEditorFont)
+				}
+				row("Max description length:") {
+					intTextField(LensSettingsState.MAX_DESCRIPTION_LENGTH_RANGE, keyboardStep = 10).bindIntText(settings::maxDescriptionLength)
 				}
 			}
 			

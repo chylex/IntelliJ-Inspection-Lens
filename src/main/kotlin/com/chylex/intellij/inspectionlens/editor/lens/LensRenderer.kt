@@ -44,7 +44,7 @@ class LensRenderer(private var info: HighlightInfo, private val settings: LensSe
 	
 	fun setPropertiesFrom(info: HighlightInfo) {
 		this.info = info
-		val description = getValidDescriptionText(info.description)
+		val description = getValidDescriptionText(info.description, settings.maxDescriptionLength)
 		
 		text = description
 		attributes = LensSeverity.from(info.severity).textAttributes
@@ -155,15 +155,13 @@ class LensRenderer(private var info: HighlightInfo, private val settings: LensSe
 		private const val HOVER_HORIZONTAL_PADDING = TEXT_HORIZONTAL_PADDING - 2
 		private const val UNDERLINE_WIDTH_REDUCTION = (TEXT_HORIZONTAL_PADDING * 2) - 1
 		
-		private const val MAX_DESCRIPTION_LENGTH = 120
-		
 		/**
 		 * Kotlin compiler inspections have an `[UPPERCASE_TAG]` at the beginning.
 		 */
 		private val UPPERCASE_TAG_REGEX = Pattern.compile("^\\[[A-Z_]+] ")
 		
-		private fun getValidDescriptionText(text: String?): String {
-			return if (text.isNullOrBlank()) " " else addEllipsisOrMissingPeriod(unescapeHtmlEntities(stripUppercaseTag(text)))
+		private fun getValidDescriptionText(text: String?, maxLength: Int): String {
+			return if (text.isNullOrBlank()) " " else addEllipsisOrMissingPeriod(unescapeHtmlEntities(stripUppercaseTag(text)), maxLength)
 		}
 		
 		private fun stripUppercaseTag(text: String): String {
@@ -181,11 +179,11 @@ class LensRenderer(private var info: HighlightInfo, private val settings: LensSe
 			return if (text.contains('&')) StringUtil.unescapeXmlEntities(text) else text
 		}
 		
-		private fun addEllipsisOrMissingPeriod(text: String): String {
+		private fun addEllipsisOrMissingPeriod(text: String, maxLength: Int): String {
 			return when {
-				text.length > MAX_DESCRIPTION_LENGTH -> text.take(MAX_DESCRIPTION_LENGTH).trimEnd { it.isWhitespace() || it == '.' } + "…"
-				!text.endsWith('.')                  -> "$text."
-				else                                 -> text
+				text.length > maxLength -> text.take(maxLength).trimEnd { it.isWhitespace() || it == '.' } + "…"
+				!text.endsWith('.')     -> "$text."
+				else                    -> text
 			}
 		}
 		
