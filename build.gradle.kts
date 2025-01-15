@@ -39,7 +39,8 @@ kotlin {
 	
 	compilerOptions {
 		freeCompilerArgs = listOf(
-			"-X" + "jvm-default=all"
+			"-X" + "jvm-default=all",
+			"-X" + "lambdas=indy"
 		)
 	}
 }
