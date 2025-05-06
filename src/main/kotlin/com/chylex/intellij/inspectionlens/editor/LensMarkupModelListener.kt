@@ -1,8 +1,13 @@
 package com.chylex.intellij.inspectionlens.editor
 
+import com.chylex.intellij.inspectionlens.InspectionLens
+import com.chylex.intellij.inspectionlens.debug.Highlighter
+import com.chylex.intellij.inspectionlens.debug.LensEventData
+import com.chylex.intellij.inspectionlens.debug.LensEventManager
 import com.chylex.intellij.inspectionlens.settings.LensSettingsState
 import com.intellij.codeInsight.daemon.impl.HighlightInfo
 import com.intellij.openapi.components.service
+import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.editor.ex.RangeHighlighterEx
 import com.intellij.openapi.editor.impl.event.MarkupModelListener
 import com.intellij.openapi.editor.markup.RangeHighlighter
@@ -10,20 +15,36 @@ import com.intellij.openapi.editor.markup.RangeHighlighter
 /**
  * Listens for inspection highlights and reports them to [EditorLensManager].
  */
-internal class LensMarkupModelListener(private val lensManagerDispatcher: EditorLensManagerDispatcher) : MarkupModelListener {
+internal class LensMarkupModelListener(private val editor: Editor, private val lensManagerDispatcher: EditorLensManagerDispatcher) : MarkupModelListener {
 	private val settings = service<LensSettingsState>()
 	
 	override fun afterAdded(highlighter: RangeHighlighterEx) {
-		showIfValid(highlighter)
+		try {
+			getFilteredHighlightInfo(highlighter)?.let { LensEventManager.addEvent(editor, LensEventData.MarkupModelAfterAdded(Highlighter(highlighter, it))) }
+			showIfValid(highlighter)
+		} catch (e: Exception) {
+			InspectionLens.LOG.error("Error showing inspection", e)
+		}
 	}
 	
 	override fun attributesChanged(highlighter: RangeHighlighterEx, renderersChanged: Boolean, fontStyleOrColorChanged: Boolean) {
-		showIfValid(highlighter)
+		try {
+			getFilteredHighlightInfo(highlighter)?.let { LensEventManager.addEvent(editor, LensEventData.MarkupModelAttributesChanged(Highlighter(highlighter, it))) }
+			showIfValid(highlighter)
+		} catch (e: Exception) {
+			InspectionLens.LOG.error("Error updating inspection", e)
+		}
 	}
 	
 	override fun beforeRemoved(highlighter: RangeHighlighterEx) {
-		if (getFilteredHighlightInfo(highlighter) != null) {
-			lensManagerDispatcher.hide(highlighter)
+		try {
+			val filteredHighlightInfo = getFilteredHighlightInfo(highlighter)
+			if (filteredHighlightInfo != null) {
+				LensEventManager.addEvent(editor, LensEventData.MarkupModelBeforeRemoved(Highlighter(highlighter, filteredHighlightInfo)))
+				lensManagerDispatcher.hide(highlighter)
+			}
+		} catch (e: Exception) {
+			InspectionLens.LOG.error("Error hiding inspection", e)
 		}
 	}
 	

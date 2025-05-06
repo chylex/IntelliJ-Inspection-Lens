@@ -11,6 +11,8 @@ import com.intellij.openapi.vfs.VirtualFile
  */
 class InspectionLensFileOpenedListener : FileOpenedSyncListener {
 	override fun fileOpenedSync(source: FileEditorManager, file: VirtualFile, editorsWithProviders: List<FileEditorWithProvider>) {
+		InspectionLens.LOG.info("File opened: $file (editor count: ${editorsWithProviders.size})")
+		
 		for (editorWrapper in editorsWithProviders) {
 			val fileEditor = editorWrapper.fileEditor
 			if (fileEditor is TextEditor) {

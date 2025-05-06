@@ -6,7 +6,7 @@ plugins {
 }
 
 group = "com.chylex.intellij.inspectionlens"
-version = "1.5.2"
+version = "1.5.2.902"
 
 repositories {
 	mavenCentral()
@@ -18,7 +18,7 @@ repositories {
 
 dependencies {
 	intellijPlatform {
-		intellijIdeaUltimate("2023.3.3")
+		intellijIdeaUltimate("2025.1")
 		bundledPlugin("tanvd.grazi")
 	}
 	

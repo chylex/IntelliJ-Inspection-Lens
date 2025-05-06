@@ -1,7 +1,9 @@
 package com.chylex.intellij.inspectionlens.editor
 
+import com.chylex.intellij.inspectionlens.debug.Highlighter
 import com.chylex.intellij.inspectionlens.editor.lens.EditorLens
 import com.chylex.intellij.inspectionlens.settings.LensSettingsState
+import com.intellij.codeInsight.daemon.impl.HighlightInfo
 import com.intellij.openapi.components.service
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.editor.markup.RangeHighlighter
@@ -13,6 +15,9 @@ import java.util.IdentityHashMap
 internal class EditorLensManager(private val editor: Editor) {
 	private val lenses = IdentityHashMap<RangeHighlighter, EditorLens>()
 	private val settings = service<LensSettingsState>()
+	
+	private val highlighters
+		get() = lenses.keys.map { Highlighter(it, HighlightInfo.fromRangeHighlighter(it)!!) }
 	
 	private fun show(highlighterWithInfo: HighlighterWithInfo) {
 		val (highlighter, info) = highlighterWithInfo

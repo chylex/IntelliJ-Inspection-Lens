@@ -32,6 +32,10 @@ internal class EditorLens private constructor(private var inlay: EditorLensInlay
 		lineBackground.hide(inlay.editor)
 	}
 	
+	override fun toString(): String {
+		return "$inlay"
+	}
+	
 	companion object {
 		fun show(editor: Editor, info: HighlightInfo, settings: LensSettingsState): EditorLens? {
 			val inlay = EditorLensInlay.show(editor, info, settings) ?: return null

@@ -1,5 +1,6 @@
 package com.chylex.intellij.inspectionlens.editor
 
+import com.chylex.intellij.inspectionlens.InspectionLens
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.editor.ex.FoldingModelEx
@@ -19,7 +20,7 @@ internal class EditorLensFeatures private constructor(
 ) {
 	private val lensManager = EditorLensManager(editor)
 	private val lensManagerDispatcher = EditorLensManagerDispatcher(lensManager)
-	private val markupModelListener = LensMarkupModelListener(lensManagerDispatcher)
+	private val markupModelListener = LensMarkupModelListener(editor, lensManagerDispatcher)
 	
 	init {
 		markupModel.addMarkupModelListener(disposable, markupModelListener)
@@ -38,19 +39,28 @@ internal class EditorLensFeatures private constructor(
 		
 		fun install(editor: Editor, disposable: Disposable) {
 			if (editor.getUserData(EDITOR_KEY) != null) {
+				InspectionLens.LOG.info("Skipped installation to: $editor")
 				return
 			}
+			
+			InspectionLens.LOG.info("Installing to: $editor")
 			
 			val markupModel = DocumentMarkupModel.forDocument(editor.document, editor.project, false) as? MarkupModelEx ?: return
 			val foldingModel = editor.foldingModel as? FoldingModelEx
 			val features = EditorLensFeatures(editor, markupModel, foldingModel, disposable)
 			
 			editor.putUserData(EDITOR_KEY, features)
-			Disposer.register(disposable) { editor.putUserData(EDITOR_KEY, null) }
+			
+			Disposer.register(disposable) {
+				InspectionLens.LOG.info("Installation disposed: $editor", Exception("DISPOSE STACK TRACE"))
+				editor.putUserData(EDITOR_KEY, null)
+			}
 		}
 		
 		fun refresh(editor: Editor) {
-			editor.getUserData(EDITOR_KEY)?.refresh()
+			val userData = editor.getUserData(EDITOR_KEY)
+			InspectionLens.LOG.info("Refreshing: $editor ($userData)")
+			userData?.refresh()
 		}
 	}
 }
