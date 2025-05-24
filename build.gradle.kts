@@ -18,7 +18,7 @@ repositories {
 
 dependencies {
 	intellijPlatform {
-		intellijIdeaUltimate("2025.1")
+		rustRover("2025.1.2", useInstaller = false)
 		bundledPlugin("tanvd.grazi")
 	}
 	
