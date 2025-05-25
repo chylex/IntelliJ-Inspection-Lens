@@ -18,7 +18,7 @@ repositories {
 
 dependencies {
 	intellijPlatform {
-		intellijIdeaUltimate("2023.3.3")
+		intellijIdeaUltimate("2024.2")
 		bundledPlugin("tanvd.grazi")
 	}
 	
@@ -28,7 +28,7 @@ dependencies {
 intellijPlatform {
 	pluginConfiguration {
 		ideaVersion {
-			sinceBuild.set("233.11361.10")
+			sinceBuild.set("242")
 			untilBuild.set(provider { null })
 		}
 	}

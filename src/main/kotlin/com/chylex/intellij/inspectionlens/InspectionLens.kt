@@ -3,6 +3,7 @@ package com.chylex.intellij.inspectionlens
 import com.chylex.intellij.inspectionlens.editor.EditorLensFeatures
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.components.service
+import com.intellij.openapi.diagnostic.logger
 import com.intellij.openapi.fileEditor.FileEditorManager
 import com.intellij.openapi.fileEditor.TextEditor
 import com.intellij.openapi.project.ProjectManager
@@ -12,6 +13,8 @@ import com.intellij.openapi.project.ProjectManager
  */
 internal object InspectionLens {
 	const val PLUGIN_ID = "com.chylex.intellij.inspectionlens"
+	
+	val LOG = logger<InspectionLens>()
 	
 	/**
 	 * Installs lenses into [editor].

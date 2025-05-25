@@ -125,7 +125,7 @@ class LensRenderer(private var info: HighlightInfo, private val settings: LensSe
 			moveToOffset(editor, info.actualStartOffset)
 			
 			if ((event.button == MouseEvent.BUTTON1) xor (hoverMode != LensHoverMode.DEFAULT)) {
-				IntentionsPopup.show(editor)
+				IntentionsPopup.show(info, inlay)
 			}
 		}
 	}
