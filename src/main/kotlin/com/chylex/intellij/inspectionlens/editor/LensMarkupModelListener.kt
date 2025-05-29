@@ -2,6 +2,7 @@ package com.chylex.intellij.inspectionlens.editor
 
 import com.chylex.intellij.inspectionlens.settings.LensSettingsState
 import com.intellij.codeInsight.daemon.impl.HighlightInfo
+import com.intellij.codeInsight.daemon.impl.UpdateHighlightersUtil
 import com.intellij.openapi.components.service
 import com.intellij.openapi.editor.ex.RangeHighlighterEx
 import com.intellij.openapi.editor.impl.event.MarkupModelListener
@@ -53,7 +54,7 @@ internal class LensMarkupModelListener(private val lensManagerDispatcher: Editor
 	
 	private inline fun runWithHighlighterIfValid(highlighter: RangeHighlighter, actionForImmediate: (HighlighterWithInfo) -> Unit, actionForAsync: (HighlighterWithInfo.Async) -> Unit) {
 		val info = highlighter.takeIf { it.isValid }?.let(::getFilteredHighlightInfo)
-		if (info != null) {
+		if (info != null && !UpdateHighlightersUtil.isFileLevelOrGutterAnnotation(info)) {
 			processHighlighterWithInfo(HighlighterWithInfo.from(highlighter, info), actionForImmediate, actionForAsync)
 		}
 	}
