@@ -32,6 +32,15 @@ intellijPlatform {
 			untilBuild.set(provider { null })
 		}
 	}
+	
+	pluginVerification {
+		freeArgs.add("-mute")
+		freeArgs.add("TemplateWordInPluginId")
+		
+		ides {
+			recommended()
+		}
+	}
 }
 
 kotlin {
