@@ -2,7 +2,6 @@ package com.chylex.intellij.inspectionlens
 
 import com.chylex.intellij.inspectionlens.editor.EditorLensFeatures
 import com.intellij.openapi.application.ApplicationManager
-import com.intellij.openapi.components.service
 import com.intellij.openapi.diagnostic.logger
 import com.intellij.openapi.fileEditor.FileEditorManager
 import com.intellij.openapi.fileEditor.TextEditor
@@ -27,23 +26,21 @@ internal object InspectionLens {
 	 * Installs lenses into [editor].
 	 */
 	fun install(editor: TextEditor) {
-		EditorLensFeatures.install(editor.editor, service<InspectionLensPluginDisposableService>().intersect(editor))
+		EditorLensFeatures.install(editor)
 	}
 	
 	/**
 	 * Installs lenses into all open editors.
 	 */
 	fun install() {
-		forEachOpenEditor(::install)
+		forEachOpenEditor(EditorLensFeatures::install)
 	}
 	
 	/**
 	 * Refreshes lenses in all open editors.
 	 */
 	private fun refresh() {
-		forEachOpenEditor {
-			EditorLensFeatures.refresh(it.editor)
-		}
+		forEachOpenEditor(EditorLensFeatures::refresh)
 	}
 	
 	/**

@@ -1,10 +1,13 @@
 package com.chylex.intellij.inspectionlens.editor
 
+import com.chylex.intellij.inspectionlens.InspectionLensPluginDisposableService
 import com.intellij.openapi.Disposable
+import com.intellij.openapi.components.service
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.editor.ex.FoldingModelEx
 import com.intellij.openapi.editor.ex.MarkupModelEx
 import com.intellij.openapi.editor.impl.DocumentMarkupModel
+import com.intellij.openapi.fileEditor.TextEditor
 import com.intellij.openapi.util.Disposer
 import com.intellij.openapi.util.Key
 
@@ -36,21 +39,24 @@ internal class EditorLensFeatures private constructor(
 	companion object {
 		private val EDITOR_KEY = Key<EditorLensFeatures>(EditorLensFeatures::class.java.name)
 		
-		fun install(editor: Editor, disposable: Disposable) {
+		fun install(owner: TextEditor) {
+			val editor = owner.editor
 			if (editor.getUserData(EDITOR_KEY) != null) {
 				return
 			}
 			
 			val markupModel = DocumentMarkupModel.forDocument(editor.document, editor.project, false) as? MarkupModelEx ?: return
 			val foldingModel = editor.foldingModel as? FoldingModelEx
+			
+			val disposable = service<InspectionLensPluginDisposableService>().intersect(owner)
 			val features = EditorLensFeatures(editor, markupModel, foldingModel, disposable)
 			
 			editor.putUserData(EDITOR_KEY, features)
 			Disposer.register(disposable) { editor.putUserData(EDITOR_KEY, null) }
 		}
 		
-		fun refresh(editor: Editor) {
-			editor.getUserData(EDITOR_KEY)?.refresh()
+		fun refresh(owner: TextEditor) {
+			owner.editor.getUserData(EDITOR_KEY)?.refresh()
 		}
 	}
 }
