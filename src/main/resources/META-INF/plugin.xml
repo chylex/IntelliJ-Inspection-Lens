@@ -96,6 +96,12 @@
                              parentId="tools" />
   </extensions>
   
+  <actions>
+    <action id="chylex.InspectionLens.ToggleLensVisibility" class="com.chylex.intellij.inspectionlens.actions.ToggleLensVisibilityAction" text="Show Inspection Lenses">
+      <add-to-group group-id="ViewMenu" anchor="after" relative-to-action="EditorResetFontSizeGlobal" />
+    </action>
+  </actions>
+  
   <applicationListeners>
     <listener class="com.chylex.intellij.inspectionlens.InspectionLensPluginListener" topic="com.intellij.ide.plugins.DynamicPluginListener" />
   </applicationListeners>

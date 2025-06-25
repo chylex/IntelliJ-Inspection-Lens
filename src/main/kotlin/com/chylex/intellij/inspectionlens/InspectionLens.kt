@@ -7,6 +7,7 @@ import com.intellij.openapi.diagnostic.logger
 import com.intellij.openapi.fileEditor.FileEditorManager
 import com.intellij.openapi.fileEditor.TextEditor
 import com.intellij.openapi.project.ProjectManager
+import java.util.concurrent.atomic.AtomicBoolean
 
 /**
  * Handles installation and uninstallation of plugin features in editors.
@@ -15,6 +16,12 @@ internal object InspectionLens {
 	const val PLUGIN_ID = "com.chylex.intellij.inspectionlens"
 	
 	val LOG = logger<InspectionLens>()
+	
+	var SHOW_LENSES = true
+		set(value) {
+			field = value
+			scheduleRefresh()
+		}
 	
 	/**
 	 * Installs lenses into [editor].
@@ -52,31 +59,31 @@ internal object InspectionLens {
 	private inline fun forEachOpenEditor(action: (TextEditor) -> Unit) {
 		val projectManager = ProjectManager.getInstanceIfCreated() ?: return
 		
-		for (project in projectManager.openProjects.filterNot { it.isDisposed }) {
-			for (editor in FileEditorManager.getInstance(project).allEditors.filterIsInstance<TextEditor>()) {
-				action(editor)
+		for (project in projectManager.openProjects) {
+			if (project.isDisposed) {
+				continue
+			}
+			
+			for (editor in FileEditorManager.getInstance(project).allEditors) {
+				if (editor is TextEditor) {
+					action(editor)
+				}
 			}
 		}
 	}
 	
-	private object Refresh {
-		private var needsRefresh = false
+	private object Refresh : Runnable {
+		private val needsRefresh = AtomicBoolean(false)
 		
 		fun schedule() {
-			synchronized(this) {
-				if (!needsRefresh) {
-					needsRefresh = true
-					ApplicationManager.getApplication().invokeLater(this::run)
-				}
+			if (needsRefresh.compareAndSet(false, true)) {
+				ApplicationManager.getApplication().invokeLater(this)
 			}
 		}
 		
-		private fun run() {
-			synchronized(this) {
-				if (needsRefresh) {
-					needsRefresh = false
-					refresh()
-				}
+		override fun run() {
+			if (needsRefresh.compareAndSet(true, false)) {
+				refresh()
 			}
 		}
 	}
