@@ -14,6 +14,14 @@
   ]]></description>
   
   <change-notes><![CDATA[
+    <b>Version 1.6.0</b>
+    <ul>
+      <li>Added action to <b>View | Show Inspection Lenses</b> that temporarily toggles visibility of all inspections.</li>
+      <li>File-wide inspections no longer appear.</li>
+      <li>Fixed quick fix popup disappearing when the floating toolbar is enabled.</li>
+      <li>Clicking an inspection now only shows relevant quick fixes (not supported for ReSharper-based languages, which use a non-standard popup).</li>
+      <li>Tried to work around an issue where the IDE randomly fails to load the plugin.</li>
+    </ul>
     <b>Version 1.5.2</b>
     <ul>
       <li>Added option to change maximum description length.</li>
