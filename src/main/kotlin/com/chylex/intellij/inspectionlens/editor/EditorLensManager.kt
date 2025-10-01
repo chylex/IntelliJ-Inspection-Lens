@@ -15,8 +15,11 @@ internal class EditorLensManager(private val editor: Editor) {
 	private val settings = service<LensSettingsState>()
 	
 	private fun show(highlighterWithInfo: HighlighterWithInfo) {
-		val (highlighter, info) = highlighterWithInfo
+		if (editor.isDisposed) {
+			return
+		}
 		
+		val (highlighter, info) = highlighterWithInfo
 		if (!highlighter.isValid) {
 			return
 		}
