@@ -14,6 +14,10 @@ internal value class EditorLensLineBackground(private val highlighter: RangeHigh
 		get() = !highlighter.isValid
 	
 	fun onFoldRegionsChanged(editor: Editor, severity: LensSeverity) {
+		if (isInvalid) {
+			return
+		}
+		
 		if (highlighter is RangeHighlighterEx) {
 			highlighter.textAttributes = getAttributes(editor, highlighter.startOffset, highlighter.endOffset, severity)
 		}
