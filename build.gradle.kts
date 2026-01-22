@@ -18,7 +18,7 @@ repositories {
 
 dependencies {
 	intellijPlatform {
-		intellijIdeaUltimate("2024.2")
+		intellijIdeaUltimate("261.17801.55-EAP", useInstaller = false)
 		bundledPlugin("tanvd.grazi")
 	}
 	
@@ -44,7 +44,7 @@ intellijPlatform {
 }
 
 kotlin {
-	jvmToolchain(17)
+	jvmToolchain(25)
 	
 	compilerOptions {
 		freeCompilerArgs = listOf(
