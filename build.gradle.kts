@@ -1,5 +1,7 @@
 @file:Suppress("ConvertLambdaToReference")
 
+import org.jetbrains.intellij.platform.gradle.TestFrameworkType
+
 plugins {
 	kotlin("jvm")
 	id("org.jetbrains.intellij.platform")
@@ -20,9 +22,13 @@ dependencies {
 	intellijPlatform {
 		intellijIdeaUltimate("2025.3")
 		bundledPlugin("tanvd.grazi")
+		
+		testFramework(TestFrameworkType.JUnit5)
 	}
 	
 	testImplementation("org.junit.jupiter:junit-jupiter:5.9.2")
+	testRuntimeOnly("org.junit.platform:junit-platform-launcher")
+	testRuntimeOnly("junit:junit:4.13.2") // https://youtrack.jetbrains.com/projects/IJPL/issues/IJPL-159134
 }
 
 intellijPlatform {
