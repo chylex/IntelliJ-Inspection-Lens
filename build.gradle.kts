@@ -44,8 +44,6 @@ intellijPlatform {
 }
 
 kotlin {
-	jvmToolchain(17)
-	
 	compilerOptions {
 		freeCompilerArgs = listOf(
 			"-X" + "jvm-default=all",
