@@ -55,7 +55,7 @@ class LensRenderer(private var info: HighlightInfo, private val settings: LensSe
 		fixBaselineForTextRendering(r)
 		super.paint(inlay, g, r, textAttributes)
 		
-		if (hovered && isHoveringText()) {
+		if (hovered) {
 			paintHoverEffect(inlay, g, r)
 		}
 	}
@@ -85,7 +85,7 @@ class LensRenderer(private var info: HighlightInfo, private val settings: LensSe
 	}
 	
 	override fun mouseMoved(event: MouseEvent, translated: Point) {
-		setHovered(isHoveringText(translated))
+		setHovered(isHoveringText())
 	}
 	
 	override fun mouseExited() {
@@ -114,7 +114,7 @@ class LensRenderer(private var info: HighlightInfo, private val settings: LensSe
 	
 	override fun mousePressed(event: MouseEvent, translated: Point) {
 		val hoverMode = settings.lensHoverMode
-		if (hoverMode == LensHoverMode.DISABLED || !isHoveringText(translated)) {
+		if (hoverMode == LensHoverMode.DISABLED || !isHoveringText()) {
 			return
 		}
 		
@@ -132,15 +132,11 @@ class LensRenderer(private var info: HighlightInfo, private val settings: LensSe
 	
 	private fun isHoveringText(): Boolean {
 		val bounds = inlay.bounds ?: return false
-		val translatedPoint = MouseInfo.getPointerInfo().location.apply {
+		val point = MouseInfo.getPointerInfo().location.apply {
 			SwingUtilities.convertPointFromScreen(this, inlay.editor.contentComponent)
 			translate(-bounds.x, -bounds.y)
 		}
 		
-		return isHoveringText(translatedPoint)
-	}
-	
-	private fun isHoveringText(point: Point): Boolean {
 		return point.x >= HOVER_HORIZONTAL_PADDING
 			&& point.y >= 4
 			&& point.x < inlay.widthInPixels - HOVER_HORIZONTAL_PADDING - extraRightPadding
