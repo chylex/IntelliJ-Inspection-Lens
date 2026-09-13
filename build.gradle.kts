@@ -10,6 +10,13 @@ plugins {
 group = "com.chylex.intellij.inspectionlens"
 version = "1.6.1"
 
+idea {
+	module {
+		excludeDirs.add(file(".kotlin"))
+		excludeDirs.add(file("build"))
+	}
+}
+
 repositories {
 	mavenCentral()
 	
