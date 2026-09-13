@@ -8,7 +8,7 @@ plugins {
 }
 
 group = "com.chylex.intellij.inspectionlens"
-version = "1.6.1"
+version = "1.7.0"
 
 idea {
 	module {

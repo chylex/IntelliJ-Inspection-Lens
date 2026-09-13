@@ -14,6 +14,12 @@
   ]]></description>
   
   <change-notes><![CDATA[
+    <b>Version 1.7.0</b>
+    <ul>
+      <li>Updated minimum version to IntelliJ 2025.3 to address API deprecations.</li>
+      <li>Improved reliability of only showing relevant quick fixes when clicking an inspection.</li>
+      <li>Fixed lenses not always rendering an underline when hovered.</li>
+    </ul>
     <b>Version 1.6.1</b>
     <ul>
       <li>Fixed exception caused by accessing disposed editors.</li>
