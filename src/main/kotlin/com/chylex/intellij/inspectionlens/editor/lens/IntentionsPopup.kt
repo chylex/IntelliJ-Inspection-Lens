@@ -9,10 +9,12 @@ import com.intellij.codeInsight.hint.HintManager
 import com.intellij.codeInsight.intention.impl.CachedIntentions
 import com.intellij.codeInsight.intention.impl.IntentionHintComponent
 import com.intellij.codeInsight.intention.impl.ShowIntentionActionsHandler
-import com.intellij.lang.LangBundle
+import com.intellij.ide.DataManager
 import com.intellij.lang.annotation.HighlightSeverity
 import com.intellij.openapi.actionSystem.ActionManager
 import com.intellij.openapi.actionSystem.ActionPlaces
+import com.intellij.openapi.actionSystem.ActionUiKind
+import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.actionSystem.IdeActions
 import com.intellij.openapi.actionSystem.ex.ActionUtil
 import com.intellij.openapi.application.ModalityState
@@ -117,7 +119,9 @@ internal object IntentionsPopup {
 	private fun showPopup(project: Project, file: PsiFile, editor: Editor, intentions: IntentionsInfo) {
 		if (intentions.isEmpty || showPopupMethod == null) {
 			val showIntentionsAction = ActionManager.getInstance().getAction(IdeActions.ACTION_SHOW_INTENTION_ACTIONS)
-			ActionUtil.invokeAction(showIntentionsAction, editor.component, ActionPlaces.EDITOR_INLAY, null, null)
+			val dataContext = DataManager.getInstance().getDataContext(editor.component)
+			val event = AnActionEvent.createEvent(showIntentionsAction, dataContext, null, ActionPlaces.EDITOR_INLAY, ActionUiKind.NONE, null)
+			ActionUtil.performAction(showIntentionsAction, event)
 		}
 		else {
 			val cachedIntentions = CachedIntentions.create(project, file, editor, intentions)
@@ -127,6 +131,6 @@ internal object IntentionsPopup {
 	}
 	
 	private fun showNoActionsAvailable(editor: Editor) {
-		HintManager.getInstance().showInformationHint(editor, LangBundle.message("hint.text.no.context.actions.available.at.this.location"))
+		HintManager.getInstance().showInformationHint(editor, "No context actions available at this location")
 	}
 }

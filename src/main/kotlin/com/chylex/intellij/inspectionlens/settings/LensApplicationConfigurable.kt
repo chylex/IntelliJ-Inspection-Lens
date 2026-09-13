@@ -14,7 +14,6 @@ import com.intellij.openapi.ui.MessageDialogBuilder
 import com.intellij.openapi.util.Disposer
 import com.intellij.ui.DisabledTraversalPolicy
 import com.intellij.ui.EditorTextFieldCellRenderer.SimpleRendererComponent
-import com.intellij.ui.SimpleListCellRenderer
 import com.intellij.ui.components.JBCheckBox
 import com.intellij.ui.dsl.builder.Cell
 import com.intellij.ui.dsl.builder.RightGap
@@ -24,6 +23,7 @@ import com.intellij.ui.dsl.builder.bindIntText
 import com.intellij.ui.dsl.builder.bindItem
 import com.intellij.ui.dsl.builder.bindSelected
 import com.intellij.ui.dsl.builder.panel
+import com.intellij.ui.dsl.listCellRenderer.textListCellRenderer
 import java.awt.Cursor
 
 class LensApplicationConfigurable : BoundConfigurable("Inspection Lens"), ConfigurableWithId {
@@ -92,7 +92,7 @@ class LensApplicationConfigurable : BoundConfigurable("Inspection Lens"), Config
 			group("Behavior") {
 				row("Hover mode:") {
 					val items = LensHoverMode.entries
-					val renderer = SimpleListCellRenderer.create("", LensHoverMode::description)
+					val renderer = textListCellRenderer<LensHoverMode?> { it?.description ?: "" }
 					comboBox(items, renderer).bindItem(settings::lensHoverMode) { settings.lensHoverMode = it ?: LensHoverMode.DEFAULT }
 				}
 			}

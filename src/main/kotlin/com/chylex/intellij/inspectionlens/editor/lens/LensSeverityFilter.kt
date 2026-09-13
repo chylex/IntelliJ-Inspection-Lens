@@ -19,9 +19,8 @@ class LensSeverityFilter(private val hiddenSeverityIds: Set<String>, private val
 	}
 	
 	companion object {
-		@Suppress("DEPRECATION")
 		private fun isSupported(severity: HighlightSeverity): Boolean {
-			return severity > HighlightSeverity.TEXT_ATTRIBUTES && severity !== HighlightSeverity.INFO
+			return severity > HighlightSeverity.TEXT_ATTRIBUTES
 		}
 		
 		fun getSupportedSeverities(registrar: SeverityRegistrar = SeverityRegistrar.getSeverityRegistrar(null)): List<HighlightSeverity> {

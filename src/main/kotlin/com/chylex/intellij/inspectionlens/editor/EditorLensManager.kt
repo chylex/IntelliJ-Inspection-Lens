@@ -88,7 +88,6 @@ internal class EditorLensManager(private val editor: Editor) {
 	/**
 	 * Batch mode affects both inlays and highlighters used for line colors.
 	 */
-	@Suppress("ConvertLambdaToReference")
 	private inline fun executeInBatchMode(operations: Int, crossinline action: () -> Unit) {
 		if (operations > 1000) {
 			editor.inlayModel.execute(true) { action() }
