@@ -1,33 +1,31 @@
 package com.chylex.intellij.inspectionlens.editor.lens
 
 import com.chylex.intellij.inspectionlens.InspectionLens
+import com.chylex.intellij.inspectionlens.editor.Inspection
 import com.intellij.codeInsight.daemon.impl.HighlightInfo
 import com.intellij.codeInsight.daemon.impl.HighlightInfo.IntentionActionDescriptor
 import com.intellij.codeInsight.daemon.impl.IntentionsUI
+import com.intellij.codeInsight.daemon.impl.ShowIntentionsPass
 import com.intellij.codeInsight.daemon.impl.ShowIntentionsPass.IntentionsInfo
 import com.intellij.codeInsight.hint.HintManager
 import com.intellij.codeInsight.intention.impl.CachedIntentions
 import com.intellij.codeInsight.intention.impl.IntentionHintComponent
 import com.intellij.codeInsight.intention.impl.ShowIntentionActionsHandler
 import com.intellij.ide.DataManager
-import com.intellij.lang.annotation.HighlightSeverity
 import com.intellij.openapi.actionSystem.ActionManager
 import com.intellij.openapi.actionSystem.ActionPlaces
 import com.intellij.openapi.actionSystem.ActionUiKind
 import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.actionSystem.IdeActions
 import com.intellij.openapi.actionSystem.ex.ActionUtil
-import com.intellij.openapi.application.ModalityState
-import com.intellij.openapi.application.ReadAction
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.editor.Inlay
-import com.intellij.openapi.project.DumbService
+import com.intellij.openapi.editor.markup.RangeHighlighter
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiDocumentManager
 import com.intellij.psi.PsiFile
 import com.intellij.psi.util.PsiUtilBase
 import com.intellij.ui.awt.RelativePoint
-import com.intellij.util.concurrency.AppExecutorUtil
 import java.lang.reflect.Method
 
 internal object IntentionsPopup {
@@ -38,24 +36,25 @@ internal object IntentionsPopup {
 			val parameterTypes = method.parameterTypes
 			
 			method.name == "showPopup" &&
-			parameterTypes.size in 1..2 &&
+			parameterTypes.size == 2 &&
 			parameterTypes[0] === RelativePoint::class.java &&
-			parameterTypes.getOrNull(1).let { p -> p == null || p.name == INTENTION_SOURCE_CLASS_NAME }
+			parameterTypes[1].name == INTENTION_SOURCE_CLASS_NAME
 		}
 		
 		method.isAccessible = true
 		
 		@Suppress("UNCHECKED_CAST")
-		val args: Array<Any?> = if (method.parameterCount == 1)
-			arrayOf(null)
-		else
-			arrayOf(null, (Class.forName(INTENTION_SOURCE_CLASS_NAME) as Class<Enum<*>>).enumConstants.first { it.name == "OTHER" })
+		val intentionSourceEnum = Class.forName(INTENTION_SOURCE_CLASS_NAME) as Class<Enum<*>>
+		val intentionSource = intentionSourceEnum.enumConstants.first { it.name == "OTHER" }
 		
-		ShowPopupMethod(method, args)
+		ShowPopupMethod(method, arrayOf(null, intentionSource))
 	} catch (t: Throwable) {
 		InspectionLens.LOG.warn("Could not initialize intention popup", t)
 		null
 	}
+	
+	val hasShowPopupMethod
+		get() = showPopupMethod != null
 	
 	private class ShowPopupMethod(private val method: Method, private val args: Array<Any?>) {
 		operator fun invoke(component: IntentionHintComponent) {
@@ -63,13 +62,13 @@ internal object IntentionsPopup {
 		}
 	}
 	
-	fun show(highlightInfo: HighlightInfo, inlay: Inlay<*>) {
-		if (!tryShow(highlightInfo, inlay)) {
-			showNoActionsAvailable(inlay.editor)
+	fun show(inspection: Inspection, inlay: Inlay<*>) {
+		if (!tryShow(inspection, inlay)) {
+			HintManager.getInstance().showInformationHint(inlay.editor, "No context actions available at this location")
 		}
 	}
 	
-	private fun tryShow(highlightInfo: HighlightInfo, inlay: Inlay<*>): Boolean {
+	private fun tryShow(inspection: Inspection, inlay: Inlay<*>): Boolean {
 		val editor = inlay.editor
 		val project = editor.project ?: return false
 		val file = PsiUtilBase.getPsiFileInEditor(editor, project) ?: return false
@@ -77,46 +76,42 @@ internal object IntentionsPopup {
 		PsiDocumentManager.getInstance(project).commitAllDocuments()
 		IntentionsUI.getInstance(project).hide()
 		
-		ReadAction
-			.nonBlocking<IntentionsInfo> { collectIntentions(editor, project, file, highlightInfo, inlay.offset) }
-			.finishOnUiThread(ModalityState.current()) { tryShowPopup(project, file, editor, it) }
-			.submit(AppExecutorUtil.getAppExecutorService())
+		val intentions = collectIntentions(editor, file, inspection.highlighter, inlay.offset)
+		if (intentions == null) {
+			return false
+		}
 		
-		return true
+		try {
+			showIntentionsPopup(project, file, editor, intentions)
+			return true
+		} catch (t: Throwable) {
+			InspectionLens.LOG.error("Could not show intention popup", t)
+			return false
+		}
 	}
 	
-	private fun collectIntentions(editor: Editor, project: Project, file: PsiFile, info: HighlightInfo, offset: Int): IntentionsInfo {
-		val intentions = mutableListOf<IntentionActionDescriptor>()
+	private fun collectIntentions(editor: Editor, file: PsiFile, highlighter: RangeHighlighter, offset: Int): IntentionsInfo? {
+		val resolvedInfo = HighlightInfo.fromRangeHighlighter(highlighter)
+		if (resolvedInfo == null) {
+			return null
+		}
 		
-		info.findRegisteredQuickFix { descriptor, _ ->
-			if (DumbService.getInstance(project).isUsableInCurrentContext(descriptor.action) && ShowIntentionActionsHandler.availableFor(file, editor, offset, descriptor.action)) {
-				intentions.add(descriptor)
+		val intentionActions = mutableListOf<IntentionActionDescriptor>()
+		
+		resolvedInfo.findRegisteredQuickFix { descriptor, _ ->
+			if (ShowIntentionActionsHandler.availableFor(file, editor, offset, descriptor.action)) {
+				intentionActions.add(descriptor)
 			}
 			null
 		}
 		
 		return IntentionsInfo().also {
 			it.offset = offset
-			
-			if (info.severity === HighlightSeverity.ERROR) {
-				it.errorFixesToShow.addAll(intentions)
-			}
-			else {
-				it.inspectionFixesToShow.addAll(intentions)
-			}
+			ShowIntentionsPass.fillIntentionsInfoForHighlightInfo(resolvedInfo, it, intentionActions)
 		}
 	}
 	
-	private fun tryShowPopup(project: Project, file: PsiFile, editor: Editor, intentions: IntentionsInfo) {
-		try {
-			showPopup(project, file, editor, intentions)
-		} catch (t: Throwable) {
-			InspectionLens.LOG.error("Could not show intention popup", t)
-			showNoActionsAvailable(editor)
-		}
-	}
-	
-	private fun showPopup(project: Project, file: PsiFile, editor: Editor, intentions: IntentionsInfo) {
+	private fun showIntentionsPopup(project: Project, file: PsiFile, editor: Editor, intentions: IntentionsInfo) {
 		if (intentions.isEmpty || showPopupMethod == null) {
 			val showIntentionsAction = ActionManager.getInstance().getAction(IdeActions.ACTION_SHOW_INTENTION_ACTIONS)
 			val dataContext = DataManager.getInstance().getDataContext(editor.component)
@@ -130,7 +125,4 @@ internal object IntentionsPopup {
 		}
 	}
 	
-	private fun showNoActionsAvailable(editor: Editor) {
-		HintManager.getInstance().showInformationHint(editor, "No context actions available at this location")
-	}
 }

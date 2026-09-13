@@ -7,8 +7,8 @@ internal class EditorLensManagerDispatcher(private val lensManager: EditorLensMa
 	private var queuedItems = mutableListOf<EditorLensManager.Command>()
 	private var isEnqueued = false
 	
-	fun show(highlighterWithInfo: HighlighterWithInfo) {
-		enqueue(EditorLensManager.Command.Show(highlighterWithInfo))
+	fun show(inspection: Inspection) {
+		enqueue(EditorLensManager.Command.Show(inspection))
 	}
 	
 	fun hide(highlighter: RangeHighlighter) {

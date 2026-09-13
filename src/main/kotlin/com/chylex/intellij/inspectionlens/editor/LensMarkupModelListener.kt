@@ -2,6 +2,7 @@ package com.chylex.intellij.inspectionlens.editor
 
 import com.chylex.intellij.inspectionlens.InspectionLens
 import com.chylex.intellij.inspectionlens.settings.LensSettingsState
+import com.intellij.codeInsight.daemon.impl.AsyncDescriptionSupplier
 import com.intellij.codeInsight.daemon.impl.HighlightInfo
 import com.intellij.codeInsight.daemon.impl.UpdateHighlightersUtil.isFileLevelOrGutterAnnotation
 import com.intellij.openapi.components.service
@@ -39,28 +40,25 @@ internal class LensMarkupModelListener(private val lensManagerDispatcher: Editor
 			return
 		}
 		
-		val highlighterWithInfo = HighlighterWithInfo.from(highlighter, info)
-		processHighlighterWithInfo(highlighterWithInfo, lensManagerDispatcher::show, ::showAsynchronously)
+		if (info is AsyncDescriptionSupplier) {
+			info.requestDescription().onSuccess {
+				if (highlighter.isValid) {
+					showInspection(highlighter, info)
+				}
+			}
+		}
+		else {
+			showInspection(highlighter, info)
+		}
 	}
 	
 	private fun getFilteredHighlightInfo(highlighter: RangeHighlighter): HighlightInfo? {
 		return HighlightInfo.fromRangeHighlighter(highlighter)?.takeIf { settings.severityFilter.test(it.severity) }
 	}
 	
-	private inline fun processHighlighterWithInfo(highlighterWithInfo: HighlighterWithInfo, actionForImmediate: (HighlighterWithInfo) -> Unit, actionForAsync: (HighlighterWithInfo.Async) -> Unit) {
-		if (highlighterWithInfo is HighlighterWithInfo.Async) {
-			actionForAsync(highlighterWithInfo)
-		}
-		else if (highlighterWithInfo.hasDescription) {
-			actionForImmediate(highlighterWithInfo)
-		}
-	}
-	
-	private fun showAsynchronously(highlighterWithInfo: HighlighterWithInfo.Async) {
-		highlighterWithInfo.requestDescription {
-			if (highlighterWithInfo.highlighter.isValid && highlighterWithInfo.hasDescription) {
-				lensManagerDispatcher.show(highlighterWithInfo)
-			}
+	private fun showInspection(highlighter: RangeHighlighter, info: HighlightInfo) {
+		if (info.description != null) {
+			lensManagerDispatcher.show(Inspection(highlighter, info))
 		}
 	}
 	

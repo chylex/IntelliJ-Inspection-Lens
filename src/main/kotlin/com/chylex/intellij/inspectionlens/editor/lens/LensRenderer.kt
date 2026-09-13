@@ -1,8 +1,8 @@
 package com.chylex.intellij.inspectionlens.editor.lens
 
+import com.chylex.intellij.inspectionlens.editor.Inspection
 import com.chylex.intellij.inspectionlens.settings.LensHoverMode
 import com.chylex.intellij.inspectionlens.settings.LensSettingsState
-import com.intellij.codeInsight.daemon.impl.HighlightInfo
 import com.intellij.codeInsight.daemon.impl.HintRenderer
 import com.intellij.codeInsight.hints.presentation.InputHandler
 import com.intellij.openapi.editor.Editor
@@ -27,14 +27,14 @@ import javax.swing.SwingUtilities
 /**
  * Renders the text of an inspection lens.
  */
-class LensRenderer(private var info: HighlightInfo, private val settings: LensSettingsState) : HintRenderer(null), InputHandler {
+class LensRenderer(private var inspection: Inspection, private val settings: LensSettingsState) : HintRenderer(null), InputHandler {
 	private lateinit var inlay: Inlay<*>
 	private lateinit var attributes: LensSeverityTextAttributes
 	private var extraRightPadding = 0
 	private var hovered = false
 	
 	init {
-		setPropertiesFrom(info)
+		setPropertiesFrom(inspection)
 	}
 	
 	fun setInlay(inlay: Inlay<*>) {
@@ -42,12 +42,12 @@ class LensRenderer(private var info: HighlightInfo, private val settings: LensSe
 		this.inlay = inlay
 	}
 	
-	fun setPropertiesFrom(info: HighlightInfo) {
-		this.info = info
-		val description = getValidDescriptionText(info.description, settings.maxDescriptionLength)
+	fun setPropertiesFrom(inspection: Inspection) {
+		this.inspection = inspection
+		val description = getValidDescriptionText(inspection.info.description, settings.maxDescriptionLength)
 		
 		text = description
-		attributes = LensSeverity.from(info.severity).textAttributes
+		attributes = LensSeverity.from(inspection.info.severity).textAttributes
 		extraRightPadding = if (description.lastOrNull() == '.') 2 else 0
 	}
 	
@@ -122,10 +122,10 @@ class LensRenderer(private var info: HighlightInfo, private val settings: LensSe
 			event.consume()
 			
 			val editor = inlay.editor
-			moveToOffset(editor, info.actualStartOffset)
+			moveToOffset(editor, inspection.info.actualStartOffset)
 			
 			if ((event.button == MouseEvent.BUTTON1) xor (hoverMode != LensHoverMode.DEFAULT)) {
-				IntentionsPopup.show(info, inlay)
+				IntentionsPopup.show(inspection, inlay)
 			}
 		}
 	}

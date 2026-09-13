@@ -14,26 +14,26 @@ internal class EditorLensManager(private val editor: Editor) {
 	private val lenses = IdentityHashMap<RangeHighlighter, EditorLens>()
 	private val settings = service<LensSettingsState>()
 	
-	private fun show(highlighterWithInfo: HighlighterWithInfo) {
+	private fun show(inspection: Inspection) {
 		if (editor.isDisposed) {
 			return
 		}
 		
-		val (highlighter, info) = highlighterWithInfo
+		val highlighter = inspection.highlighter
 		if (!highlighter.isValid) {
 			return
 		}
 		
 		val existingLens = lenses[highlighter]
 		if (existingLens != null) {
-			if (existingLens.update(info, settings)) {
+			if (existingLens.update(inspection, settings)) {
 				return
 			}
 			
 			existingLens.hide()
 		}
 		
-		val newLens = EditorLens.show(editor, info, settings)
+		val newLens = EditorLens.show(editor, inspection, settings)
 		if (newLens != null) {
 			lenses[highlighter] = newLens
 		}
@@ -66,9 +66,9 @@ internal class EditorLensManager(private val editor: Editor) {
 	sealed interface Command {
 		fun apply(lensManager: EditorLensManager)
 		
-		class Show(private val highlighter: HighlighterWithInfo) : Command {
+		class Show(private val inspection: Inspection) : Command {
 			override fun apply(lensManager: EditorLensManager) {
-				lensManager.show(highlighter)
+				lensManager.show(inspection)
 			}
 		}
 		

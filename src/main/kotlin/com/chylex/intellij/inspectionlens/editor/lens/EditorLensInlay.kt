@@ -1,5 +1,6 @@
 package com.chylex.intellij.inspectionlens.editor.lens
 
+import com.chylex.intellij.inspectionlens.editor.Inspection
 import com.chylex.intellij.inspectionlens.settings.LensSettingsState
 import com.intellij.codeInsight.daemon.impl.HighlightInfo
 import com.intellij.openapi.editor.Editor
@@ -11,12 +12,12 @@ internal value class EditorLensInlay(private val inlay: Inlay<LensRenderer>) {
 	val editor
 		get() = inlay.editor
 	
-	fun tryUpdate(info: HighlightInfo): Boolean {
+	fun tryUpdate(inspection: Inspection): Boolean {
 		if (!inlay.isValid) {
 			return false
 		}
 		
-		inlay.renderer.setPropertiesFrom(info)
+		inlay.renderer.setPropertiesFrom(inspection)
 		inlay.update()
 		return true
 	}
@@ -26,10 +27,10 @@ internal value class EditorLensInlay(private val inlay: Inlay<LensRenderer>) {
 	}
 	
 	companion object {
-		fun show(editor: Editor, info: HighlightInfo, settings: LensSettingsState): EditorLensInlay? {
-			val offset = getInlayHintOffset(info)
-			val priority = getInlayHintPriority(editor, info)
-			val renderer = LensRenderer(info, settings)
+		fun show(editor: Editor, inspection: Inspection, settings: LensSettingsState): EditorLensInlay? {
+			val offset = getInlayHintOffset(inspection.info)
+			val priority = getInlayHintPriority(editor, inspection.info)
+			val renderer = LensRenderer(inspection, settings)
 			
 			val properties = InlayProperties()
 				.relatesToPrecedingText(true)
@@ -71,6 +72,6 @@ internal value class EditorLensInlay(private val inlay: Inlay<LensRenderer>) {
 		private fun getLineStartOffset(editor: Editor, offset: Int): Int {
 			val position = editor.offsetToLogicalPosition(offset)
 			return editor.document.getLineStartOffset(position.line)
-		}	
+		}
 	}
 }
