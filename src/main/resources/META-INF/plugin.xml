@@ -128,6 +128,7 @@
                              instance="com.chylex.intellij.inspectionlens.settings.LensApplicationConfigurable"
                              displayName="Inspection Lens"
                              parentId="tools" />
+    <errorHandler implementation="com.intellij.diagnostic.JetBrainsMarketplaceErrorReportSubmitter"/>
   </extensions>
   
   <actions>
